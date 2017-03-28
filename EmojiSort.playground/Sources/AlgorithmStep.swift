@@ -14,13 +14,6 @@ public struct AlgorithmStep {
 			case small
 			case large
 		}
-		/// Move `mainIndex` immediately after the current `extraIndex` FOR A GIVEN ROUND i.e. position in round `x` to the position in round `x+1`
-        /// - important: this should function on the basis of one old memory location to a new memory location, with `dropPivot` signifying the round's end
-		case moveAfter
-        
-        /// Move `mainIndex` immediately before the current `extraIndex` FOR A GIVEN ROUND i.e. position in round `x` to the position in round `x+1`
-        /// - important: this should function on the basis of one old memory location to a new memory location, with `dropPivot` signifying the round's end
-        case moveBefore
 		
         /// Move `mainIndex` to the end of the queue (or subqueue) for the current offset value.
         /// - note: this only really needs to be used for mergeSort
@@ -44,13 +37,7 @@ public struct AlgorithmStep {
         
 		/// When `mainIndex` should slide to the position of `extraIndex`
 		case slide
-        
-		/// `mainIndex` has been selected as a pivot element.
-		case selectPivot
-        
-		/// Drops the current pivot element.
-		/// - note: no parameters required
-		case dropPivot
+
 	}
 	
 	// MARK: Properties
@@ -120,19 +107,7 @@ public struct AlgorithmStep {
 		          highlightIntensity: intensity)
 	}
 
-	/// Move one `mainIndex` to the postition directly after the current `extraIndex`.
-	public init(move mainIndex:Int, after extraIndex:Int) {
-		self.init(type: .moveAfter,
-		          mainIndex: mainIndex,
-		          extraIndex: extraIndex)
-	}
-    
-    /// Move one `mainIndex` to the postition directly after the current `extraIndex`.
-    public init(move mainIndex:Int, before extraIndex:Int) {
-        self.init(type: .moveBefore,
-                  mainIndex: mainIndex,
-                  extraIndex: extraIndex)
-    }
+
 	
 	public init(moveToJoiningArea mainIndex:Int, toJoiningAreaIndexPosition extraIndex:Int) {
 		self.init(type: .moveToJoiningArea,
@@ -167,15 +142,7 @@ public struct AlgorithmStep {
 		          mainIndex: mainIndex,
 		          extraIndex: extraIndex)
 	}
-	
-	/// Make `mainIndex` the pivot element.
-	public init(selectPivot mainIndex:Int) {
-		self.init(type: .selectPivot,
-		          mainIndex: mainIndex)
-	}
-	
-	// MARK: Methods
-	
+
 	
 }
 

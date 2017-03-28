@@ -8,7 +8,7 @@ fileprivate final class Stalk:UILabel {
 		super.init(frame: .zero)
 		self.text = "|"
 		self.textColor = .black
-		self.font = UIFont(name: "AvenirNextCondensed-UltraLight", size: 200)
+		self.font = UIFont(name: "AvenirNextCondensed-UltraLight", size: 150)
 		self.textAlignment = .center
 		self.sizeToFit()
 	}
@@ -29,9 +29,12 @@ fileprivate final class Claw:UILabel {
 		case right = "}"
 	}
 	
+	fileprivate var side:Side
+	
 	// MARK: Init
 	
 	fileprivate init(side:Side) {
+		self.side = side
 		super.init(frame: .zero)
 		self.text = side.rawValue
 		self.textColor = .black
@@ -50,8 +53,8 @@ public final class SortingArm: UIView {
 	
 	// MARK: Constants
 	
-	public static let openedAngle:CGFloat = 0.6
-	public static let grabbedAngle:CGFloat = 0.35
+	public static let openedAngle:CGFloat = 0.65
+	public static let grabbedAngle:CGFloat = 0.38
 	
 	// MARK: Claw Elements
 	
@@ -61,37 +64,45 @@ public final class SortingArm: UIView {
 	
 	private var grabSpeed:TimeInterval
 	
+	public var startingPosition:CGPoint!
+	
 	// MARK: Claw State
 	
 	public enum ClawState {
 		case open
 		case grabbed
-		case closed
 		
 		public func next() -> ClawState {
 			switch self {
 			case .open:
 				return .grabbed
 			case .grabbed:
-				return .closed
-			case .closed:
 				return .open
 			}
 		}
 	}
 	
-	public var clawState:ClawState = .closed {
+	public var clawState:ClawState = .open {
 		didSet {
 			guard clawState != oldValue else { return }
-			DispatchQueue.main.async { [clawState] in
-				self.layer.removeAllAnimations()
-				UIView.animate(withDuration: self.grabSpeed, delay: 0, usingSpringWithDamping: 0.35, initialSpringVelocity: 0.07, options: [.curveEaseOut], animations: { [clawState] in
-					self.adjustClawPositions(forNewState: clawState)
-					self.leftClaw.transform = self.clawAnimationTransform(side: .left, state: clawState)
-					self.rightClaw.transform = self.clawAnimationTransform(side: .right, state: clawState)
-					}, completion: nil)
+			DispatchQueue.main.async {
+				self.animateClawChange(for: self.leftClaw, state: self.clawState)
+				self.animateClawChange(for: self.rightClaw, state: self.clawState)
 			}
+			
 		}
+	}
+	
+	private func animateClawChange(for side:Claw, state: ClawState) {
+		CATransaction.begin()
+		let ani = CABasicAnimation(keyPath: "transform")
+		ani.toValue = NSValue(cgAffineTransform: self.clawAnimationTransform(side: side.side, state: clawState))
+		ani.duration = self.grabSpeed
+		ani.isRemovedOnCompletion = false
+		ani.fillMode = kCAFillModeForwards
+		side.transform = self.clawAnimationTransform(side: side.side, state: clawState)
+		side.layer.add(ani, forKey: "transform")
+		CATransaction.commit()
 	}
 	
 	
@@ -122,6 +133,8 @@ public final class SortingArm: UIView {
 		self.backgroundColor = .clear
 		
 		setupClawElementPositions()
+		
+	//	self.setAnchorPoint(anchorPoint: targetLocation)
 	}
 	
 	required public init?(coder aDecoder: NSCoder) {
@@ -131,8 +144,11 @@ public final class SortingArm: UIView {
 	// MARK: Methods
 	
 	private func setupClawElementPositions() {
-		stalk.center = self.center
-		adjustClawPositions(forNewState: clawState)
+		stalk.center = CGPoint(x: self.center.x, y: self.center.y-110)
+		leftClaw.center = CGPoint(x: self.stalk.center.x-6, y: self.center.y-17)
+		rightClaw.center = CGPoint(x: self.stalk.center.x+6, y: self.center.y-17)
+		leftClaw.transform = clawAnimationTransform(side: .left, state: .open)
+		rightClaw.transform = clawAnimationTransform(side: .right, state: .open)
 		self.addSubview(stalk)
 		self.addSubview(leftClaw)
 		self.addSubview(rightClaw)
@@ -150,24 +166,7 @@ public final class SortingArm: UIView {
 			return SortingArm.openedAngle
 		case .grabbed:
 			return SortingArm.grabbedAngle
-		case .closed:
-			return 0
 		}
-	}
-	
-	private func adjustClawPositions(forNewState state:ClawState) {
-		let offset:CGFloat = {
-			switch state {
-			case .open:
-				return 9
-			case .grabbed:
-				return 6
-			case .closed:
-				return 3
-			}
-		}()
-		leftClaw.center = CGPoint(x: self.stalk.center.x-offset, y: self.stalk.frame.height-51)
-		rightClaw.center = CGPoint(x: self.stalk.center.x+offset, y: self.stalk.frame.height-51)
 	}
 	
 }

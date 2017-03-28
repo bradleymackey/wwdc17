@@ -107,7 +107,7 @@ public final class MainView: UIView {
 		}
 	}
 	
-	var state:SortingArm.ClawState = .closed
+	var state:SortingArm.ClawState = .open
 	
 	private var zLabels = [UILabel]() {
 		didSet {

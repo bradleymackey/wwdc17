@@ -68,7 +68,6 @@ public final class Sorter {
 		case insertionSort // ✅ instructions working
 		case selectionSort // ✅ instructions working
 		case mergeSort // ✅ instructions working
-		case quickSort // ✅ instructions working
 		case stupidSort // ✅ instructions working
 	}
 	
@@ -94,10 +93,6 @@ public final class Sorter {
 			mergeSortSteps = []
 			mergeSort(on: objects, using: trait)
 			return mergeSortSteps
-		case .quickSort:
-			quickSortSteps = []
-			quickSort(on: objects, using: trait)
-			return quickSortSteps
 		case .stupidSort:
 			return stupidSort(on: objects, using: trait)
 		}
@@ -163,7 +158,7 @@ public final class Sorter {
 			// Find the lowest value in the rest of the array.
 			var lowest = x
 			for y in x + 1 ..< sortedObjects.count {
-                let highlight = AlgorithmStep(highlightSection: y, and: x, withIntensity: .small)
+                let highlight = AlgorithmStep(highlightIndex: y, and: x, withIntensity: .small)
 				steps.append(highlight)
 				guard let firstTrait = sortedObjects[y].traits[trait], let secondTrait = sortedObjects[lowest].traits[trait] else { return nil }
 				if firstTrait < secondTrait {
@@ -251,71 +246,6 @@ public final class Sorter {
 		return orderedPile
 	}
 	
-	
-	// TODO: the steps for quicksort, currently it will sort, but we only have steps for getting and dropping the pivot
-	
-	//// As `quickSort` is a recursive algorithm, we store all the algorithm steps outside of the function itself while it is running.
-	private static var quickSortSteps = [AlgorithmStep]()
-	
-	/// - note: as this is a recursive algorithm, we need to store an `indexOffset` so we know whereabouts in the recursion we are.
-	@discardableResult
-	private static func quickSort<T: TraitSortable>(on objects:[T], using trait:Emoji.Trait, indexOffset:Int=0) -> [T] {
-		// base case -> we don't need to sort a single element
-		guard objects.count > 1 else { return objects }
-		
-		// select pivot
-        let pivotIndex = objects.count/2
-		let pivotTraitValue = objects[pivotIndex].traits[trait]!
-		let selectPivot = AlgorithmStep(type: .selectPivot, mainIndex: pivotIndex+indexOffset)
-		quickSortSteps.append(selectPivot)
-		
-		// THE FOLLOWING SORTING ORDER IS IMPORTANT,DO NOT CHANGE
-		
-		// objects less than the current pivot value
-        var lessIndexNo = 0
-        var less = [T]()
-        for obj in objects {
-            defer { lessIndexNo += 1 }
-            if obj.traits[trait]! < pivotTraitValue {
-                less.append(obj)
-                let moveStep = AlgorithmStep(move: lessIndexNo+indexOffset, before: pivotIndex+indexOffset)
-                quickSortSteps.append(moveStep)
-            }
-        }
-
-		// objects more than the current pivot value
-        var greaterIndexNo = 0
-        var greaterMatches = 0
-        var greater = [T]()
-        for obj in objects {
-            defer { greaterIndexNo += 1 }
-            if obj.traits[trait]! > pivotTraitValue {
-                greater.append(obj)
-                let moveStep = AlgorithmStep(move: greaterIndexNo+indexOffset, after: pivotIndex+indexOffset+greaterMatches)
-                quickSortSteps.append(moveStep)
-                greaterMatches += 1
-            }
-        }
-		
-		// objects that are currently equal to the pivot
-        var equalIndexNo = 0
-        var equal = [T]()
-        for obj in objects {
-            defer { equalIndexNo += 1 }
-            if obj.traits[trait]! == pivotTraitValue {
-                equal.append(obj)
-				// ensure that we don't move the pivot element itself
-				guard equalIndexNo+indexOffset != pivotIndex+indexOffset else { continue }
-				let moveStep = AlgorithmStep(move: equalIndexNo+indexOffset, after: pivotIndex+indexOffset)
-				quickSortSteps.append(moveStep)
-            }
-        }
-		
-		// work is done, we can drop the current pivot
-		let dropPivot = AlgorithmStep(type: .dropPivot)
-		quickSortSteps.append(dropPivot)
-        return quickSort(on: less, using: trait, indexOffset: indexOffset) + equal + quickSort(on: greater, using: trait, indexOffset: pivotIndex+equal.count+indexOffset)
-	}
 	
 	/// This algorithm doesn't actually require the elements eventually get sorted, just do a few iterations to show how bad it is.
 	private static func stupidSort<T: TraitSortable>(on objects:[T], using trait:Emoji.Trait, times:Int=5) -> [AlgorithmStep] {
