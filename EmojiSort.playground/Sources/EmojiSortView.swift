@@ -75,7 +75,7 @@ public final class EmojiSortView: UIView {
 		self.addSubview(sortingArm1)
 		self.addSubview(sortingArm2)
 		
-		performSortAnimation(for: .mergeSort, trait: .humour, stepTime: 1)
+		performSortAnimation(for: .selectionSort, trait: .humour, stepTime: 1)
 	}
 	
 	// MARK: Sorting Interface Methods
@@ -141,15 +141,25 @@ public final class EmojiSortView: UIView {
 	// MARK: Performing Steps
 	
 	private func performHighlight(for step:AlgorithmStep, time:TimeInterval) {
-		
+        let indexToHighlight = step.mainIndex!
+		let intensity = step.highlightIntensity!
+        highlight(emoji: emojis[indexToHighlight]!, intensitity: intensity, time: time)
+        guard let secondIndex = step.extraIndex else { return }
+        highlight(emoji: emojis[secondIndex]!, intensitity: intensity, time: time)
+        guard let thirdIndex = step.extraExtraIndex else { return }
+        highlight(emoji: emojis[thirdIndex]!, intensitity: intensity, time: time)
 	}
 	
-	/// the indicies of the elements in the joining area's cooridinates
-	private var inJoiningArea = [Int:Emoji]()
+	/// the indicies of the elements in the joining area's cooridinates, with emoji in that position
+    private var inJoiningArea = [Int:Emoji]() {
+        didSet {
+            print("in joining area: \(inJoiningArea)")
+        }
+    }
 	/// the indicies freed up in the original row because some elements have moved to the joining area.
-	private var indiciesFree = [Int]() {
+	private var indiciesFree = Set<Int>() {
 		didSet {
-			print(indiciesFree)
+			print("free indicies: \(indiciesFree)")
 		}
 	}
 
@@ -166,7 +176,7 @@ public final class EmojiSortView: UIView {
 	private func performMoveToJoiningArea(for step:AlgorithmStep, time:TimeInterval) {
 		let indexToMove = step.mainIndex!
 		let newPositionInJoiningArea = step.extraIndex!
-		indiciesFree.append(indexToMove)
+		indiciesFree.insert(indexToMove)
 		inJoiningArea[newPositionInJoiningArea] = emojis[indexToMove]!
 		let path = moveToJoiningAreaPath(fromMain: indexToMove, toHolding: newPositionInJoiningArea)
 		print("move emoji at \(indexToMove)")
@@ -209,7 +219,18 @@ public final class EmojiSortView: UIView {
 	}
 	
 	private func performSplit(for step:AlgorithmStep, time:TimeInterval) {
-		
+		let leftIndex = step.mainIndex!
+        let rightIndex = step.extraIndex!
+        for i in 0...leftIndex {
+            let emoji = emojis[i]!
+            let path = splitPath(index: i, direction: .left)
+            move(emoji: emoji, alongPath: path.path, endPoint: path.endPoint, time: time)
+        }
+        for i in rightIndex..<emojis.count {
+            let emoji = emojis[i]!
+            let path = splitPath(index: i, direction: .right)
+            move(emoji: emoji, alongPath: path.path, endPoint: path.endPoint, time: time)
+        }
 	}
 	
 	private func performHold(for step:AlgorithmStep, time:TimeInterval) {
@@ -238,7 +259,7 @@ public final class EmojiSortView: UIView {
 	}
 	
 	private func dropPivot(time:TimeInterval) {
-		
+		// should move back all elements (like the merge sort completed thing)
 	}
 	
 	
@@ -259,14 +280,29 @@ public final class EmojiSortView: UIView {
 	}
 	
 	/// gets a bezier path for the emojis to follow, when an emoji simply needs to shift to make room for another emoji
-//	private func shiftPath(from index1: Int, to index2: Int) -> UIBezierPath {
-//		let point1 = elementFixedPositions[index1]
-//		let point2 = elementFixedPositions[index2]
-//		let path = UIBezierPath()
-//		path.move(to: point1)
-//		path.addLine(to: point2)
-//		return path
-//	}
+	private func shiftPath(from index1: Int, by index2: Int) -> UIBezierPath {
+		let point1 = elementFixedPositions[index1]
+		let point2 = elementFixedPositions[index2]
+		let path = UIBezierPath()
+		path.move(to: point1)
+		path.addLine(to: point2)
+		return path
+	}
+    
+    
+    private enum SplitDirection: CGFloat {
+        case left = -5
+        case right = 5
+    }
+    
+    private func splitPath(index: Int, direction:SplitDirection) -> (path:UIBezierPath,endPoint:CGPoint) {
+        let startingPoint = elementFixedPositions[index]
+        let endPoint = CGPoint(x: startingPoint.x+direction.rawValue, y: startingPoint.y)
+        let path = UIBezierPath()
+        path.move(to: startingPoint)
+        path.addLine(to: endPoint)
+        return (path,endPoint)
+    }
 	
 	private func moveToHoldPositionPath(from index:Int) -> (path:UIBezierPath,endPoint:CGPoint) {
 		let path = UIBezierPath()
@@ -309,7 +345,6 @@ public final class EmojiSortView: UIView {
 	private func move(emoji:Emoji, alongPath path:UIBezierPath, endPoint:CGPoint, time:TimeInterval) {
 		// code adapted from: http://stackoverflow.com/questions/12885226/drag-uiview-along-bezier-path
 		DispatchQueue.main.async {
-
 			let pathAnimation = CAKeyframeAnimation(keyPath: "position")
 			pathAnimation.duration = time*0.6666 // 2/3 for moving, 1/3 for moving claw
 			pathAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut)
@@ -325,11 +360,11 @@ public final class EmojiSortView: UIView {
 	private func highlight(emoji:Emoji, intensitity:AlgorithmStep.StepType.HighlightIntensity, time:TimeInterval) {
 		DispatchQueue.main.async {
 			let animation = CABasicAnimation(keyPath: "transform.scale")
-			animation.duration = time/2 // how long the animation will take
+			animation.duration = time/8 // how long the animation will take
 			animation.repeatCount = 1
 			animation.autoreverses = true // so it auto returns to 0 offset
 			animation.fromValue = 1
-			animation.toValue = intensitity == .small ? 1.08 : 1.2
+			animation.toValue = intensitity == .small ? 1.3 : 1.8
 			emoji.layer.add(animation, forKey: "transform.scale")
 		}
 	}

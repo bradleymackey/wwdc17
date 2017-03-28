@@ -166,7 +166,7 @@ public final class Sorter {
 			// Find the lowest value in the rest of the array.
 			var lowest = x
 			for y in x + 1 ..< sortedObjects.count {
-				let highlight = AlgorithmStep(highlightIndex: y, withIntensity: .small)
+                let highlight = AlgorithmStep(highlightSection: y, and: x, withIntensity: .small)
 				steps.append(highlight)
 				guard let firstTrait = sortedObjects[y].traits[trait], let secondTrait = sortedObjects[lowest].traits[trait] else { return nil }
 				if firstTrait < secondTrait {
