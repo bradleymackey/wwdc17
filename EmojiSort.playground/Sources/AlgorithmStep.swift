@@ -42,9 +42,8 @@ public struct AlgorithmStep {
 		/// - note: no parameters required
 		case unhold
         
-		/// When `mainIndex` should match the contents of `extraIndex`
-		/// - important: if no `extraIndex` is provided, the `mainIndex` should match the value from the holding area.
-		case match
+		/// When `mainIndex` should slide to the position of `extraIndex`
+		case slide
         
 		/// `mainIndex` has been selected as a pivot element.
 		case selectPivot
@@ -163,8 +162,8 @@ public struct AlgorithmStep {
 	}
 	
 	/// Match `mainIndex` to `extraIndex`
-	public init(match mainIndex:Int, with extraIndex:Int?) {
-		self.init(type: .match,
+	public init(slide mainIndex:Int, to extraIndex:Int?) {
+		self.init(type: .slide,
 		          mainIndex: mainIndex,
 		          extraIndex: extraIndex)
 	}

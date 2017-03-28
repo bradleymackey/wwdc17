@@ -128,8 +128,8 @@ public final class EmojiSortView: UIView {
 			performHold(for: step, time:time)
 		case .unhold:
 			performUnhold(time:time)
-		case .match:
-			performMatch(for: step, time:time)
+		case .slide:
+			performSlide(for: step, time:time)
 		case .selectPivot:
 			selectPivot(for: step, time:time)
 		case .dropPivot:
@@ -165,14 +165,29 @@ public final class EmojiSortView: UIView {
 
 	/// - note: used only in the context of quickSort
 	private func performMoveAfter(for step:AlgorithmStep, time:TimeInterval) {
-		
+		// exactly the same as the mergeSort move to joining area
+		performMoveToJoiningArea(for: step, time: time)
 	}
 	
 	/// - note: used only in the context of quickSort
+	/// - important: more complex than `performMoveAfter` because if there if currently an element in the regular row with this index, all elements currently in the joining area need to be shifted by 1 (including the pivot element)
 	private func performMoveBefore(for step:AlgorithmStep, time:TimeInterval) {
-		
+		let indexToMove = step.mainIndex!
+		let newPositionInJoiningArea = step.extraIndex!
+		indiciesFree.insert(indexToMove)
+		inJoiningArea[newPositionInJoiningArea] = emojis[indexToMove]!
+		if indiciesFree.contains(newPositionInJoiningArea) == false {
+			// need to shift all values in joining area by 1 (required by algorithm for correct function)
+			for (index,emoji) in inJoiningArea {
+				inJoiningArea[index] = nil
+				inJoiningArea[index+1] = emoji
+			}
+		}
+		let path = moveToJoiningAreaPath(fromMain: indexToMove, toHolding: newPositionInJoiningArea)
+		move(emoji: emojis[indexToMove]!, alongPath: path.path, endPoint: path.endPoint, time: time)
 	}
 	
+	/// used for mergeSort when moving to the joining area
 	private func performMoveToJoiningArea(for step:AlgorithmStep, time:TimeInterval) {
 		let indexToMove = step.mainIndex!
 		let newPositionInJoiningArea = step.extraIndex!
@@ -193,7 +208,6 @@ public final class EmojiSortView: UIView {
 			emojis[sortedFree[currentIndex]] = emoji
 			currentIndex += 1
 		}
-		currentIndex = 0
 		for i in sortedFree {
 			let e = emojis[i]!
 			let path = moveBackPath(fromCurrentPosition: e.center, toIndex: i)
@@ -241,28 +255,71 @@ public final class EmojiSortView: UIView {
 		move(emoji: emoji, alongPath: path.path, endPoint: path.endPoint, time: time)
 	}
 	
+	/// moves held element to the free space in the list
 	private func performUnhold(time:TimeInterval) {
 		let path = returnFromHoldPositionPath()
-		move(emoji: heldElement!.emoji, alongPath: path, endPoint: elementFixedPositions[heldElement!.originIndex], time: time)
+		move(emoji: heldElement!.emoji, alongPath: path, endPoint: elementFixedPositions[indiciesFree.first!], time: time)
+		// cleanup to set the appropaite index for emoji
+		emojis[indiciesFree.first!] = heldElement!.emoji
+		heldElement = nil
 	}
 	
-	private func performMatch(for step:AlgorithmStep, time:TimeInterval) {
-		
+	private func performSlide(for step:AlgorithmStep, time:TimeInterval) {
+		let fromPosition = step.mainIndex!
+		let toPosition = step.extraIndex!
+		let path = slidePath(from: fromPosition, by: toPosition)
+		move(emoji: emojis[fromPosition]!, alongPath: path.path, endPoint: path.endPoint, time: time)
+		emojis[toPosition] = emojis[fromPosition]!
+		// set the new free index
+		indiciesFree.remove(toPosition)
+		indiciesFree.insert(fromPosition)
 	}
 	
 	private func selectPivot(for step:AlgorithmStep, time:TimeInterval) {
+		// get appropriate info
 		let pivotIndex = step.mainIndex!
 		let pivotEmoji = emojis[pivotIndex]!
+		// set the pivot as being in the joining area
 		pivotElement = (pivotEmoji,pivotIndex)
+		indiciesFree.insert(pivotIndex)
+		inJoiningArea[pivotIndex] = pivotEmoji
+		// move the pivot
 		let path = moveToJoiningAreaPath(fromMain: pivotIndex, toHolding: pivotIndex)
 		move(emoji: pivotEmoji, alongPath: path.path, endPoint: path.endPoint, time: time)
 	}
 	
 	private func dropPivot(time:TimeInterval) {
 		// should move back all elements (like the merge sort completed thing)
+		// as the indicies may not be consecutive for the actual emojis, some shuffling is required to ensure they still take the places of elements as if they were consecutive
+		
+		
+		// clear any old positions
+		for free in indiciesFree {
+			emojis[free] = nil
+		}
+		// set the new values for the (possibly skewed indices)
+		for (key,value) in inJoiningArea {
+			emojis[key] = value
+		}
+		
+		
+		let sortedFree = indiciesFree.sorted()
+		let sortedKeys = inJoiningArea.keys.sorted()
+		var current = 0
+		for i in sortedKeys {
+			defer { current += 1 }
+			let emoji = inJoiningArea[i]!
+			let targetIndexToMoveTo = sortedFree[current]
+			let path = moveBackPath(fromCurrentPosition: emoji.center, toIndex: targetIndexToMoveTo)
+			move(emoji: emoji, alongPath: path.path, endPoint: path.endPoint, time: time)
+			print("move back!")
+		}
+		
+		// clear the free spaces and elements in the joining area
+		indiciesFree = []
+		inJoiningArea = [:]
+		
 	}
-	
-	
 	
 	
 	
@@ -280,13 +337,13 @@ public final class EmojiSortView: UIView {
 	}
 	
 	/// gets a bezier path for the emojis to follow, when an emoji simply needs to shift to make room for another emoji
-	private func shiftPath(from index1: Int, by index2: Int) -> UIBezierPath {
+	private func slidePath(from index1: Int, by index2: Int) -> (path:UIBezierPath,endPoint:CGPoint) {
 		let point1 = elementFixedPositions[index1]
 		let point2 = elementFixedPositions[index2]
 		let path = UIBezierPath()
 		path.move(to: point1)
 		path.addLine(to: point2)
-		return path
+		return (path, point2)
 	}
     
     
@@ -353,7 +410,6 @@ public final class EmojiSortView: UIView {
 			pathAnimation.fillMode = kCAFillModeForwards
 			emoji.center = endPoint
 			emoji.layer.add(pathAnimation, forKey: "pathAnimation")
-
 		}
 	}
 	
@@ -370,11 +426,9 @@ public final class EmojiSortView: UIView {
 	}
 	
 	
-	
-	
 	// MARK: Maintenance
 	
-	/// In the case of quickSort, the indices of the elements can get shifted during sorting, this restores all the indcies to consecutive values starting from 0, while maintaining the order.
+	/// In the case of quickSort, the indices of the elements can get shifted during sorting (e.g. [3,4,6,7,8,10]), this restores all the indcies to consecutive values starting from 0, while maintaining the order (e.g. [0,1,2,3,4,5]).
 	private func repairEmojiIndicies() {
 		let starting = emojis
 		var badIndicies = emojis.keys.sorted()

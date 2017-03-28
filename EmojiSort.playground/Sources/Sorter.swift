@@ -139,21 +139,18 @@ public final class Sorter {
 		var steps = [AlgorithmStep]()
 		for i in 1..<sortedObjects.count {
 			var a = i
-			let temp = sortedObjects[a]
+			let tempEmoji = sortedObjects[i]
 			let hold = AlgorithmStep(hold: a)
-			let highlight = AlgorithmStep(highlightIndex: a, withIntensity: .small)
-			steps += [hold,highlight]
-			guard let firstTrait = temp.traits[trait], let secondTrait = sortedObjects[a-1].traits[trait] else { return nil }
-			while a > 0 && firstTrait < secondTrait {
-				let match = AlgorithmStep(match: a, with: a-1)
-				steps.append(match)
+			steps.append(hold)
+			while a > 0 && tempEmoji.traits[trait]! < sortedObjects[a-1].traits[trait]! {
+				let slide = AlgorithmStep(slide: a-1, to:a)
+				steps.append(slide)
 				sortedObjects[a] = sortedObjects[a-1]
 				a -= 1
 			}
-			let matchBack = AlgorithmStep(match: a, with: nil)
 			let removeHold = AlgorithmStep(type: .unhold)
-			steps += [matchBack,removeHold]
-			sortedObjects[a] = temp
+			steps.append(removeHold)
+			sortedObjects[a] = tempEmoji
 		}
 		return steps
 	}
