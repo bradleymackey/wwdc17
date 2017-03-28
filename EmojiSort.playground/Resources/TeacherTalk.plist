@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>welcome_stage</key>
+	<array>
+		<string>Hello!</string>
+		<string>Today we are going to look at some sorting algorithms.</string>
+		<string>Sorting algorithms are used all the time in computers and are really important.</string>
+		<string>Let&apos;s look at some examples.</string>
+	</array>
+	<key>slideshow_stage_text</key>
+	<array>
+		<string>Imagine you want to list all your songs by song name.</string>
+		<string>The songs need to be sorted!</string>
+		<string>There are many ways we can go about sorting such a list.</string>
+		<string>The set of rules we follow to complete a task like sorting is called an ALGORITHM.</string>
+		<string>Some really smart people have already done the hard work and figured out some sorting algorithms for us.</string>
+		<string>Although, some sorting algorithms work much faster than other ones...</string>
+		<string>...but there&apos;s no perfect sorting algorithm. Some work better than others for different tasks.</string>
+		<string>But how do we know if the sorting algorithm that we are using is any good?</string>
+		<string>It&apos;s important to know this so that we don&apos;t choose an algorithm that slows our whole program down!</string>
+		<string>We use something called &apos;Big-O&apos; notation to measure algorithm&apos;s performance.</string>
+		<string>It&apos;s a little maths-y, but a really good way to measure how good an algorithm is.</string>
+		<string>I don&apos;t really have time to explain it now, so I&apos;ll just tell you which algorithms are best for what sort of task.</string>
+		<string>It&apos;s not too complicated, so look it up if you&apos;re interested!</string>
+		<string>Anyway, enough of me talking, let&apos;s introduce some of my emoji friends!</string>
+	</array>
+	<key>slideshow_stage_slide</key>
+	<array/>
+	<key>emoji_introduction_stage</key>
+	<array>
+		<string>We are going to be sorting these emojis today.</string>
+		<string>Each emoji has some traits and you&apos;re going to be able to sort them by these traits!</string>
+		<string>I&apos;ve given you a few algorithms you can use to sort them.</string>
+		<string>Enough talking. Let&apos;s get sorting!</string>
+	</array>
+</dict>
+</plist>
