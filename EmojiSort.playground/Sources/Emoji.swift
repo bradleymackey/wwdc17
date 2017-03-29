@@ -22,12 +22,16 @@ public final class Emoji: UILabel, TraitSortable {
 	
 	public var traits = [Trait:Int]()
 	
+	public var name:String
+	
 	// MARK: Init
 	
-	public init(emoji:String, happiness:Int, popularity:Int, emotion:Int, humour:Int, sarcastic:Int) {
+	public init(emoji:String, name:String, happiness:Int, popularity:Int, emotion:Int, humour:Int, sarcastic:Int) {
 		
 		// set the emoji
 		self.emojiCharacter = emoji
+		
+		self.name = name
 		
 		// set its traits
 		traits[.happiness] = happiness
@@ -59,7 +63,7 @@ public final class Emoji: UILabel, TraitSortable {
 			let statsVal = ["happy", "popularity", "emotion", "humour", "sarcastic"].map {
 				stats[$0] as? Int ?? 0
 			}
-			let emojiObj = Emoji(emoji: emoji, happiness: statsVal[0], popularity: statsVal[1], emotion: statsVal[2], humour: statsVal[3], sarcastic: statsVal[4])
+			let emojiObj = Emoji(emoji: emoji, name: stats["desc"] as? String ?? "?",happiness: statsVal[0], popularity: statsVal[1], emotion: statsVal[2], humour: statsVal[3], sarcastic: statsVal[4])
 			emojis.append(emojiObj)
 		}
 		return emojis

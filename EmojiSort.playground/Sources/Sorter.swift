@@ -101,7 +101,7 @@ public final class Sorter {
 	public static func randomisePositions<T: TraitSortable>(objects:[T]) -> [AlgorithmStep] {
 		return stupidSort(on: objects,
 		                  using: .happiness, // doesn't matter in this case
-		                  times: 1)
+		                  times: 3)
 	}
 	
 	/// - returns: the steps required to produce the sorted list, or nil if the sorting `trait` does not exist on any object.
