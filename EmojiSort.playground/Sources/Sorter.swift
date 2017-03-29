@@ -186,8 +186,6 @@ public final class Sorter {
 	private static func mergeSort<T: TraitSortable>(on objects:[T], using trait:Emoji.Trait, indexOffset:Int=0) -> [T]? {
 		guard objects.count > 1 else { return objects }
 		let middleIndex = objects.count/2
-		let split = AlgorithmStep(splitBetween: (middleIndex-1)+indexOffset, and: middleIndex+indexOffset)
-		mergeSortSteps.append(split)
 		guard let left = mergeSort(on: Array(objects[0..<middleIndex]), using: trait, indexOffset: indexOffset) else { return nil }
 		guard let right = mergeSort(on: Array(objects[middleIndex..<objects.count]), using: trait, indexOffset: indexOffset+middleIndex) else { return nil }
 		return merge(left: left, right: right, leftOffset: indexOffset, rightOffset: indexOffset+middleIndex, using: trait)

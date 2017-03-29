@@ -25,9 +25,6 @@ public struct AlgorithmStep {
 		/// Swap `mainIndex` with `extraIndex`.
 		case swap
         
-		/// The list should divide between `mainIndex` and `extraIndex`.
-		case split
-        
 		/// `mainIndex` should be moved to a temporary holding location.
 		case hold
         
@@ -119,13 +116,6 @@ public struct AlgorithmStep {
 	/// Swap an index with another
 	public init(swap mainIndex:Int, with extraIndex:Int) {
 		self.init(type: .swap,
-		          mainIndex: mainIndex,
-		          extraIndex: extraIndex)
-	}
-	
-	/// Split into two groups between `mainIndex` and `extraIndex`.
-	public init(splitBetween mainIndex:Int, and extraIndex:Int) {
-		self.init(type: .split,
 		          mainIndex: mainIndex,
 		          extraIndex: extraIndex)
 	}

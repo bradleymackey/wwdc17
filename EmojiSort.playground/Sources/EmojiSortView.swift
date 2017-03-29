@@ -52,6 +52,8 @@ public final class EmojiSortView: UIView {
 		return [emojiTitleLabel,happyTraitLabel,popularirtyTraitLabel,emotionTraitLabel,humourTraitLabel,sarcasticTraitLabel]
 	}
 	
+	private var barChartView:BarChartView!
+	
 	// MARK: Init
 	
 	public init(frame:CGRect,emojis:[Emoji]) {
@@ -66,12 +68,17 @@ public final class EmojiSortView: UIView {
 		self.emojis = indexToEmoji
 		self.elementPositions = positions
 		
+		
+		
 		super.init(frame: frame)
 		
 		self.backgroundColor = .white
 		
+		
+		
 		setupInitialPositions()
 		setupLabels()
+		setupBarChart()
 	}
 	
 	required public init?(coder aDecoder: NSCoder) {
@@ -89,13 +96,13 @@ public final class EmojiSortView: UIView {
 		
 		sortingArm1.startingPosition = CGPoint(x: 35, y: 35)
 		sortingArm1.center = sortingArm1.startingPosition
-		// second arm hidden, only appears when it's really not.
+		// second arm hidden, only appears when it's needed
 		sortingArm2.startingPosition = CGPoint(x: self.frame.width+35, y: 35)
 		sortingArm2.center = sortingArm2.startingPosition
 		self.addSubview(sortingArm1)
 		self.addSubview(sortingArm2)
 		
-		//performSortAnimation(for: .insertionSort, trait: .popularity, stepTime: 0.5)
+		performSortAnimation(for: .insertionSort, trait: .happiness, stepTime: 0.7)
 	}
 	
 	private func setupLabels() {
@@ -115,6 +122,23 @@ public final class EmojiSortView: UIView {
 			label.alpha = 0
 			self.addSubview(label)
 		}
+	}
+	
+	private func setupBarChart() {
+		let rect = CGRect(x: 27, y: 7*self.frame.height/8, width: self.frame.width-14, height: self.frame.height/8)
+		self.barChartView = BarChartView(frame: rect, collectionViewLayout: UICollectionViewFlowLayout())
+		self.barChartView.items = getValuesInDisplayOrder(forAttribute: .happiness)
+		self.barChartView.reloadData()
+		self.addSubview(barChartView)
+	}
+	
+	private func getValuesInDisplayOrder(forAttribute attribute:Emoji.Trait) -> [CGFloat] {
+		var traitVals = [CGFloat]()
+		for index in emojis.keys.sorted() {
+			let val = emojis[index]!.traits[attribute]!
+			traitVals.append(CGFloat(val))
+		}
+		return traitVals
 	}
 	
 	// MARK: Sorting Interface Methods
@@ -148,7 +172,9 @@ public final class EmojiSortView: UIView {
 				self.isSorting = false
 				return
 			}
+			self.barChartView.items = self.getValuesInDisplayOrder(forAttribute: .happiness)
 			self.perform(step: steps[self.nextStepToPerform], time:timer.timeInterval)
+			self.barChartView.reloadData()
 		}
 	}
 	
@@ -164,8 +190,6 @@ public final class EmojiSortView: UIView {
 			performMergeCompletedForJoiningArea(time:time)
 		case .swap:
 			performSwap(for: step, time:time)
-		case .split:
-			performSplit(for: step, time:time)
 		case .hold:
 			performHold(for: step, time:time)
 		case .unhold:
@@ -248,21 +272,6 @@ public final class EmojiSortView: UIView {
 		emojis[index1] = secondEmoji
 	}
 	
-	private func performSplit(for step:AlgorithmStep, time:TimeInterval) {
-//		let leftIndex = step.mainIndex!
-//        let rightIndex = step.extraIndex!
-//        for i in 0...leftIndex {
-//            let emoji = emojis[i]!
-//            let path = splitPath(startingPoint: emoji.center, direction: .left)
-//			move(emoji: emoji, alongPath: path.path, endPoint: path.endPoint, time: time, useGrabber: false)
-//        }
-//        for i in rightIndex..<emojis.count {
-//            let emoji = emojis[i]!
-//            let path = splitPath(startingPoint: emoji.center, direction: .right)
-//			move(emoji: emoji, alongPath: path.path, endPoint: path.endPoint, time: time, useGrabber: false)
-//        }
-	}
-	
 	private func performHold(for step:AlgorithmStep, time:TimeInterval) {
 		let index = step.mainIndex!
 		let emoji = emojis[index]!
@@ -315,24 +324,6 @@ public final class EmojiSortView: UIView {
 		path.addLine(to: point2)
 		return (path, point2)
 	}
-	
-	private func quickSortSlidePath(from index1: Int, by index2: Int) -> (path:UIBezierPath,endPoint:CGPoint) {
-		let point1 = elementPositions[index1]
-		let point2 = elementPositions[index2]
-		let path = UIBezierPath()
-		path.move(to: point1)
-		path.addLine(to: point2)
-		return (path, point2)
-	}
-    
-    private func splitPath(startingPoint: CGPoint, direction:SplitDirection) -> (path:UIBezierPath,endPoint:CGPoint) {
-        let endPoint = CGPoint(x: startingPoint.x+direction.rawValue, y: startingPoint.y)
-        let path = UIBezierPath()
-        path.move(to: startingPoint)
-        path.addLine(to: endPoint)
-        return (path,endPoint)
-    }
-	
 	private func moveToHoldPositionPath(from index:Int) -> (path:UIBezierPath,endPoint:CGPoint) {
 		let path = UIBezierPath()
 		path.move(to: elementPositions[index])
@@ -502,10 +493,11 @@ public final class EmojiSortView: UIView {
 		if isSorting { return }
 		if movingEmoji { return }
 		if let showcased = heldElement {
-			for (_,emoji) in emojis {
-				UIView.animate(withDuration: 0.3) {
-					emoji.alpha = 1
+			UIView.animate(withDuration: 0.3) {
+				self.emojis.values.forEach { e in
+					e.alpha = 1
 				}
+				self.barChartView.alpha = 1
 			}
 			let path = moveBackPath(fromCurrentPosition: showcased.center, toIndex: indiciesFree.first!)
 			move(emoji: showcased, alongPath: path.path, endPoint: path.endPoint, time: 2, useGrabber: true)
@@ -532,6 +524,7 @@ public final class EmojiSortView: UIView {
 				emojisToFade.forEach { e in
 					e.alpha = 0.1
 				}
+				self.barChartView.alpha = 0.1
 			}
 		}
 	}
