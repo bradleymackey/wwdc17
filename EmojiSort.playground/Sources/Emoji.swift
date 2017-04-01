@@ -33,6 +33,21 @@ public final class Emoji: UILabel, TraitSortable {
 				return "Use Sarcastically"
 			}
 		}
+		
+		public func next() -> Trait {
+			switch self {
+			case .happiness:
+				return .popularity
+			case .popularity:
+				return .emotion
+			case .emotion:
+				return .humour
+			case .humour:
+				return .sarcastic
+			case .sarcastic:
+				return .happiness
+			}
+		}
 	}
 	
 	public var traits = [Trait:Int]()

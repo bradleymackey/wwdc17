@@ -31,7 +31,7 @@ import Foundation
 //	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //	THE SOFTWARE.
 
-// extension modified from: http://stackoverflow.com/questions/24026510/how-do-i-shuffle-an-array-in-swift
+// extension from and modified from: http://stackoverflow.com/questions/24026510/how-do-i-shuffle-an-array-in-swift
 extension MutableCollection where Indices.Iterator.Element == Index {
 	/// Shuffles the contents of this collection, producing steps
 	func stepsToShuffle() -> [AlgorithmStep] {
@@ -52,7 +52,30 @@ extension MutableCollection where Indices.Iterator.Element == Index {
 		
 		return steps
 	}
+	
+	mutating func shuffle() {
+		let c = count
+		guard c > 1 else { return }
+		
+		for (firstUnshuffled , unshuffledCount) in zip(indices, stride(from: c, to: 1, by: -1)) {
+			let d: IndexDistance = numericCast(arc4random_uniform(numericCast(unshuffledCount)))
+			guard d != 0 else { continue }
+			let i = index(firstUnshuffled, offsetBy: d)
+			swap(&self[firstUnshuffled], &self[i])
+		}
+	}
 }
+
+extension Sequence {
+	/// Returns an array with the contents of this sequence, shuffled.
+	func shuffled() -> [Iterator.Element] {
+		var result = Array(self)
+		result.shuffle()
+		return result
+	}
+}
+
+
 
 /// # Sorter
 /// The brain of the program. This contains methods to sort a given list of `Sortable` by a number of sorting algorithms and gives the steps to produce such a sorted list.
@@ -82,6 +105,21 @@ public final class Sorter {
 				return "Merge Sort"
 			case .stupidSort:
 				return "Stupid Sort"
+			}
+		}
+		
+		public func next() -> Algorithm {
+			switch self {
+			case .bubbleSort:
+				return .insertionSort
+			case .insertionSort:
+				return .selectionSort
+			case .selectionSort:
+				return .mergeSort
+			case .mergeSort:
+				return .stupidSort
+			case .stupidSort:
+				return .bubbleSort
 			}
 		}
 	}

@@ -75,6 +75,13 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 	
 	private var barChartView:BarChartView!
 	
+	private var currentSortingTrait = Emoji.Trait.happiness {
+		didSet {
+			self.barChartView.items = getValuesInDisplayOrder(forAttribute: currentSortingTrait)
+			self.barChartView.reloadData()
+		}
+	}
+	
 	// MARK: Init
 	
 	public init(frame:CGRect,emojis:[Emoji]) {
@@ -92,6 +99,9 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 		super.init(frame: frame)
 		
 		self.backgroundColor = .white
+		self.clipsToBounds = true
+		self.layer.borderWidth = 0.5
+		self.layer.borderColor = UIColor.darkGray.cgColor
 		
 		setupInitialPositions()
 		setupLabels()
@@ -118,43 +128,50 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 		sortingArm2.center = sortingArm2.startingPosition
 		self.addSubview(sortingArm1)
 		self.addSubview(sortingArm2)
-		
-		performSortAnimation(for: .insertionSort, trait: .happiness, stepTime: 0.7)
 	}
 	
 	private func setupLabels() {
-		emojiTitleLabel.font = UIFont.boldSystemFont(ofSize: 23)
+		
+		emojiTitleLabel.font = UIFont.boldSystemFont(ofSize: 21)
 		emojiTitleLabel.textColor = .black
 		emojiTitleLabel.textAlignment = .center
 		emojiTitleLabel.center = CGPoint(x: self.frame.width/2, y: self.frame.height/8)
 		emojiTitleLabel.alpha = 0
 		self.addSubview(emojiTitleLabel)
+		
 		var additionalOffset:CGFloat = 0
 		[happyTraitLabel,popularirtyTraitLabel,emotionTraitLabel,humourTraitLabel,sarcasticTraitLabel].forEach { label in
 			defer { additionalOffset += 13 }
-			label.font = UIFont.systemFont(ofSize: 12)
+			label.font = UIFont.systemFont(ofSize: 10)
 			label.textColor = .darkGray
 			label.center = CGPoint(x: emojiTitleLabel.center.x, y: emojiTitleLabel.center.y+30+additionalOffset)
 			label.textAlignment = .center
 			label.alpha = 0
 			self.addSubview(label)
 		}
+		
 	}
 	
 	private func setupBarChart() {
-		let rect = CGRect(x: 31, y: 7*self.frame.height/8, width: self.frame.width-21, height: self.frame.height/8)
+		
+		// setup precise bar chart location
+		let rect = CGRect(x: 32, y: 7*self.frame.height/8, width: self.frame.width-21, height: self.frame.height/8)
 		self.barChartView = BarChartView(frame: rect, collectionViewLayout: UICollectionViewFlowLayout())
-		self.barChartView.items = getValuesInDisplayOrder(forAttribute: .happiness)
+		self.barChartView.items = getValuesInDisplayOrder(forAttribute: currentSortingTrait)
 		self.barChartView.reloadData()
 		self.addSubview(barChartView)
+		
 	}
 	
+	/// gets the trait values for which we are currently sorting in the order in which they are visible (used by the bar chart)
 	private func getValuesInDisplayOrder(forAttribute attribute:Emoji.Trait) -> [CGFloat] {
 		var traitVals = [CGFloat]()
 		for index in emojis.keys.sorted() {
 			let val = emojis[index]!.traits[attribute]!
 			traitVals.append(CGFloat(val))
-			
+		}
+		for i in indiciesFree {
+			traitVals[i] = 0
 		}
 		return traitVals
 	}
@@ -182,13 +199,12 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 	private func performedTimeredAnimation(for steps:[AlgorithmStep], stepTime: TimeInterval) {
 		self.nextStepToPerform = 0
 		Timer.scheduledTimer(withTimeInterval: stepTime, repeats: true) { [steps] (timer) in
-			defer {
-				self.nextStepToPerform += 1
-				self.barChartView.items = self.getValuesInDisplayOrder(forAttribute: .happiness)
-				self.barChartView.performBatchUpdates({
-					self.barChartView.reloadSections([0])
-				}, completion: nil)
-			}
+			// update the bar chart each step
+			defer { self.nextStepToPerform += 1 }
+			self.barChartView.items = self.getValuesInDisplayOrder(forAttribute: self.currentSortingTrait)
+			self.barChartView.performBatchUpdates({
+				self.barChartView.reloadSections([0])
+			}, completion: nil)
 			guard self.nextStepToPerform < steps.count else {
 				timer.invalidate()
 				self.moveGrabber(to: self.sortingArm1.startingPosition, isExtra: false, time: stepTime)
@@ -196,9 +212,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 				self.isSorting = false
 				return
 			}
-			
 			self.perform(step: steps[self.nextStepToPerform], time:timer.timeInterval)
-			
 		}
 	}
 	
@@ -561,6 +575,25 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 				label.alpha = 0
 			}
 		})
+	}
+	
+	// MARK: Delegate
+	
+	public func sort(withAlgorithm algorithm: Sorter.Algorithm, trait: Emoji.Trait, speed: AlgorithmSpeed) {
+		performSortAnimation(for: algorithm, trait: trait, stepTime: speed.rawValue)
+		currentSortingTrait = trait
+	}
+	
+	public func randomisePositions() {
+		randomiseEmojiPositions()
+	}
+	
+	public func newTraitTapped(trait: Emoji.Trait) {
+		currentSortingTrait = trait
+	}
+	
+	public func newAlgorithmTapped(algorithm: Sorter.Algorithm) {
+		fatalError("don't care about this here")
 	}
 	
 }

@@ -36,13 +36,14 @@ var emojis = Emoji.getEmojisFrom(plist: "EmojiStats")
 let teacher = EmojiTeacher()
 //let scene = MainView(emojiToSort: emojis, emojiTeacher: teacher)
 
-let r = CGRect(x: 0, y: 0, width: 560, height: 200)
+let r = CGRect(x: 0, y: 0, width: 600, height: 350)
 
-let s2 = EmojiSortView(frame: r, emojis: emojis)
+//let s2 = EmojiSortView(frame: r, emojis: emojis)
+let s2 = ContainerView(frame: r, emojiToSort: emojis, teacher: teacher)
 
 
 PlaygroundPage.current.liveView = s2
 
 
 
-let s = "jkjnnnfjg"
+let s = "jfjg"

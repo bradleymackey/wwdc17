@@ -38,7 +38,7 @@ public final class BarChartView: UICollectionView, UICollectionViewDelegateFlowL
 		let cell = self.dequeueReusableCell(withReuseIdentifier: BarCell.id, for: indexPath) as! BarCell
 		if let max = items.max() {
 			let value = items[indexPath.item]
-			let ratio:CGFloat = value / max
+			let ratio:CGFloat = max != 0 ? value / max : 0
 			cell.barHeightConstraint?.constant = self.frame.height * ratio
 		}
 		return cell
