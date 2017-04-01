@@ -21,7 +21,7 @@ public final class EmojiTeacher: UILabel {
 	
 	public var currentEmotion:Emotion = .sleeping {
 		didSet {
-			talkingTimer?.invalidate()
+			stopTalking()
 			if currentEmotion == .talking {
 				startTalking()
 			} else {
@@ -47,6 +47,10 @@ public final class EmojiTeacher: UILabel {
 		fatalError("init(coder:) has not been implemented")
 	}
 	
+	deinit {
+		talkingTimer?.invalidate()
+	}
+	
 	// MARK: Methods
 	
 	private func startTalking() {
@@ -62,6 +66,11 @@ public final class EmojiTeacher: UILabel {
 			}
 			self.talkingMouthOpen = !self.talkingMouthOpen
 		}
+	}
+	
+	private func stopTalking() {
+		self.talkingTimer?.invalidate()
+		self.talkingMouthOpen = true
 	}
 	
 	

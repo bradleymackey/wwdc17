@@ -12,12 +12,27 @@ public final class Emoji: UILabel, TraitSortable {
 	
 	/// The traits of each emoji
 	/// - note: must be an `Int` between 0 and 99
-	public enum Trait {
+	public enum Trait: CustomStringConvertible {
 		case happiness
 		case popularity
 		case emotion
 		case humour
 		case sarcastic
+		
+		public var description: String {
+			switch self {
+			case .happiness:
+				return "Happiness"
+			case .popularity:
+				return "Popularity"
+			case .emotion:
+				return "Emotion"
+			case .humour:
+				return "Humour"
+			case .sarcastic:
+				return "Use Sarcastically"
+			}
+		}
 	}
 	
 	public var traits = [Trait:Int]()

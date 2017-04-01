@@ -63,12 +63,27 @@ public final class Sorter {
 	// MARK: Enums
 	
 	/// The sorting algorithms `Sorter` is capable of performing.
-	public enum Algorithm {
+	public enum Algorithm: CustomStringConvertible {
 		case bubbleSort // ✅ instructions working
 		case insertionSort // ✅ instructions working
 		case selectionSort // ✅ instructions working
 		case mergeSort // ✅ instructions working
 		case stupidSort // ✅ instructions working
+		
+		public var description: String {
+			switch self {
+			case .bubbleSort:
+				return "Bubble Sort"
+			case .insertionSort:
+				return "Insertion Sort"
+			case .selectionSort:
+				return "Selection Sort"
+			case .mergeSort:
+				return "Merge Sort"
+			case .stupidSort:
+				return "Stupid Sort"
+			}
+		}
 	}
 	
 	// MARK: Methods
@@ -225,6 +240,8 @@ public final class Sorter {
 				rightIndex += 1
 			}
 		}
+		
+		// move any remaining LHS elements
 		while leftIndex < left.count {
 			defer { additionalOffset += 1 }
 			let moveLeft = AlgorithmStep(moveToJoiningArea: leftIndex+leftOffset, toJoiningAreaIndexPosition: leftOffset+additionalOffset)
@@ -232,6 +249,8 @@ public final class Sorter {
 			orderedPile.append(left[leftIndex])
 			leftIndex += 1
 		}
+		
+		// move any remaining RHS elements
 		while rightIndex < right.count {
 			defer { additionalOffset += 1 }
 			let moveRight = AlgorithmStep(moveToJoiningArea: rightIndex+rightOffset, toJoiningAreaIndexPosition: leftOffset+additionalOffset)
@@ -239,14 +258,17 @@ public final class Sorter {
 			orderedPile.append(right[rightIndex])
 			rightIndex += 1
 		}
+		
+		// merge complete
 		let backStep = AlgorithmStep(type: .mergeComplete)
 		mergeSortSteps.append(backStep)
+		
 		return orderedPile
 	}
 	
 	
 	/// This algorithm doesn't actually require the elements eventually get sorted, just do a few iterations to show how bad it is.
-	private static func stupidSort<T: TraitSortable>(on objects:[T], using trait:Emoji.Trait, times:Int=5) -> [AlgorithmStep] {
+	private static func stupidSort<T: TraitSortable>(on objects:[T], using trait:Emoji.Trait, times:Int = 6) -> [AlgorithmStep] {
 		var steps = [AlgorithmStep]()
 		for _ in 0..<times {
 			steps += objects.stepsToShuffle()

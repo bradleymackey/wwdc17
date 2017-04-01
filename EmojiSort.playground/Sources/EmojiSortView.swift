@@ -1,12 +1,20 @@
 import Foundation
 import UIKit
 
+/// protocol that notifies the reciever of any noteworthy changes to the class
+public protocol EmojiSortViewDelegate: class {
+	func sortingComplete()
+}
+
 
 /// This is the object that contains all the Emojis while we are sorting them, that handles ordering, splitting, joining, holding etc. it's how we know what is where at what time and basically manages all the sorting!!!
 /// - note: this class handles all of its own animations
-public final class EmojiSortView: UIView {
+public final class EmojiSortView: UIView, OptionChangeReactable {
 	
 	// MARK: Properties
+	
+	/// set the delegate to recieve notifications about important changes.
+	public weak var delegate:EmojiSortViewDelegate?
 	
 	/// the standard positions where each element should rest
 	private let elementPositions:[CGPoint]
@@ -33,13 +41,26 @@ public final class EmojiSortView: UIView {
 		return emojisArray
 	}
 	
+	/// the emoji that is currently being held outside of the main list ALONE, this is very different to the joining area (this could be used for the showcase or for holding when using insertion sort)
 	private var heldElement:Emoji?
 	
+	/// the place where the element should be held when using insertion sort
 	private var holdingPosition:CGPoint {
 		return CGPoint(x: self.center.x, y: self.frame.height/4)
 	}
 	
-	private var isSorting = false
+	/// whether a sort animation is currently in progress
+	private var isSorting = false {
+		didSet {
+			guard oldValue != isSorting else { return }
+			guard !isSorting else { return }
+			self.delegate?.sortingComplete()
+		}
+	}
+	
+	// MARK: Labels
+	
+	// setup performed once `self` has initalised
 	
 	private var emojiTitleLabel = UILabel(frame: .zero)
 	private var happyTraitLabel = UILabel(frame: .zero)
@@ -68,13 +89,9 @@ public final class EmojiSortView: UIView {
 		self.emojis = indexToEmoji
 		self.elementPositions = positions
 		
-		
-		
 		super.init(frame: frame)
 		
 		self.backgroundColor = .white
-		
-		
 		
 		setupInitialPositions()
 		setupLabels()
@@ -116,7 +133,7 @@ public final class EmojiSortView: UIView {
 		[happyTraitLabel,popularirtyTraitLabel,emotionTraitLabel,humourTraitLabel,sarcasticTraitLabel].forEach { label in
 			defer { additionalOffset += 13 }
 			label.font = UIFont.systemFont(ofSize: 12)
-			label.textColor = .black
+			label.textColor = .darkGray
 			label.center = CGPoint(x: emojiTitleLabel.center.x, y: emojiTitleLabel.center.y+30+additionalOffset)
 			label.textAlignment = .center
 			label.alpha = 0
@@ -125,7 +142,7 @@ public final class EmojiSortView: UIView {
 	}
 	
 	private func setupBarChart() {
-		let rect = CGRect(x: 27, y: 7*self.frame.height/8, width: self.frame.width-14, height: self.frame.height/8)
+		let rect = CGRect(x: 31, y: 7*self.frame.height/8, width: self.frame.width-21, height: self.frame.height/8)
 		self.barChartView = BarChartView(frame: rect, collectionViewLayout: UICollectionViewFlowLayout())
 		self.barChartView.items = getValuesInDisplayOrder(forAttribute: .happiness)
 		self.barChartView.reloadData()
@@ -137,6 +154,7 @@ public final class EmojiSortView: UIView {
 		for index in emojis.keys.sorted() {
 			let val = emojis[index]!.traits[attribute]!
 			traitVals.append(CGFloat(val))
+			
 		}
 		return traitVals
 	}
@@ -164,17 +182,23 @@ public final class EmojiSortView: UIView {
 	private func performedTimeredAnimation(for steps:[AlgorithmStep], stepTime: TimeInterval) {
 		self.nextStepToPerform = 0
 		Timer.scheduledTimer(withTimeInterval: stepTime, repeats: true) { [steps] (timer) in
-			defer { self.nextStepToPerform += 1 }
+			defer {
+				self.nextStepToPerform += 1
+				self.barChartView.items = self.getValuesInDisplayOrder(forAttribute: .happiness)
+				self.barChartView.performBatchUpdates({
+					self.barChartView.reloadSections([0])
+				}, completion: nil)
+			}
 			guard self.nextStepToPerform < steps.count else {
 				timer.invalidate()
-				self.grabberReturnHome(grabber: self.sortingArm1)
-				self.grabberReturnHome(grabber: self.sortingArm2)
+				self.moveGrabber(to: self.sortingArm1.startingPosition, isExtra: false, time: stepTime)
+				self.moveGrabber(to: self.sortingArm2.startingPosition, isExtra: true, time: stepTime)
 				self.isSorting = false
 				return
 			}
-			self.barChartView.items = self.getValuesInDisplayOrder(forAttribute: .happiness)
+			
 			self.perform(step: steps[self.nextStepToPerform], time:timer.timeInterval)
-			self.barChartView.reloadData()
+			
 		}
 	}
 	
@@ -206,10 +230,12 @@ public final class EmojiSortView: UIView {
         let indexToHighlight = step.mainIndex!
 		let intensity = step.highlightIntensity!
         highlight(emoji: emojis[indexToHighlight]!, intensitity: intensity, time: time)
-		moveGrabberAbovePosition(point: emojis[indexToHighlight]!.center.x, isExtra: false, time: time)
+		let point1 = CGPoint(x: emojis[indexToHighlight]!.center.x, y: self.frame.height/2)
+		moveGrabber(to: point1, isExtra: false, time: time)
         guard let secondIndex = step.extraIndex else { return }
         highlight(emoji: emojis[secondIndex]!, intensitity: intensity, time: time)
-		moveGrabberAbovePosition(point: emojis[secondIndex]!.center.x, isExtra: true, time: time)
+		let point2 = CGPoint(x: emojis[secondIndex]!.center.x, y: self.frame.height/2)
+		moveGrabber(to: point2, isExtra: true, time: time)
         guard let thirdIndex = step.extraExtraIndex else { return }
         highlight(emoji: emojis[thirdIndex]!, intensitity: intensity, time: time)
 	}
@@ -374,10 +400,8 @@ public final class EmojiSortView: UIView {
 	private func move(emoji:Emoji, alongPath path:UIBezierPath, endPoint:CGPoint, time:TimeInterval, useGrabber:Bool, extraGrabber:Bool=false) {
 		// code adapted from: http://stackoverflow.com/questions/12885226/drag-uiview-along-bezier-path
 		DispatchQueue.main.async {
-			
 			let grabber = extraGrabber ? self.sortingArm2 : self.sortingArm1
 			
-	
 			if useGrabber {
 				CATransaction.begin()
 				CATransaction.setCompletionBlock {
@@ -439,36 +463,19 @@ public final class EmojiSortView: UIView {
 		print("claw post: \(grabber.targetLocation)")
 	}
 	
-	private func moveGrabberAbovePosition(point:CGFloat,isExtra:Bool,time:TimeInterval) {
+	private func moveGrabber(to point:CGPoint, isExtra:Bool, time:TimeInterval) {
 		DispatchQueue.main.async {
-			
 			let grabber = isExtra ? self.sortingArm2 : self.sortingArm1
 			CATransaction.begin()
 			let pathAnimation = CABasicAnimation(keyPath: "position")
 			pathAnimation.duration = time*0.15
 			pathAnimation.fromValue = NSValue(cgPoint: grabber.center)
-			pathAnimation.toValue = NSValue(cgPoint: CGPoint(x: point, y: self.frame.height/2))
+			pathAnimation.toValue = NSValue(cgPoint: point)
 			pathAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
 			pathAnimation.isRemovedOnCompletion = false
 			pathAnimation.fillMode = kCAFillModeForwards
-			grabber.center =  CGPoint(x:point, y: self.frame.height/2)
-			grabber.layer.add(pathAnimation, forKey: "moveAboveEmoji")
-			CATransaction.commit()
-		}
-	}
-	
-	private func grabberReturnHome(grabber:SortingArm) {
-		DispatchQueue.main.async {
-			CATransaction.begin()
-			let pathAnimation = CABasicAnimation(keyPath: "position")
-			pathAnimation.duration = 2
-			pathAnimation.fromValue = NSValue(cgPoint: grabber.center)
-			pathAnimation.toValue = NSValue(cgPoint: grabber.startingPosition)
-			pathAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-			pathAnimation.isRemovedOnCompletion = false
-			pathAnimation.fillMode = kCAFillModeForwards
-			grabber.center =  grabber.startingPosition
-			grabber.layer.add(pathAnimation, forKey: "grabberGoHome")
+			grabber.center =  point
+			grabber.layer.add(pathAnimation, forKey: "moveGrabberAlone")
 			CATransaction.commit()
 		}
 	}
@@ -535,7 +542,7 @@ public final class EmojiSortView: UIView {
 		popularirtyTraitLabel.text = "Popularity: \(emoji.traits[.popularity] ?? -1)"
 		emotionTraitLabel.text = "Emotion: \(emoji.traits[.emotion] ?? -1)"
 		humourTraitLabel.text = "Humour: \(emoji.traits[.humour] ?? -1)"
-		sarcasticTraitLabel.text = "Use Sarcasticly: \(emoji.traits[.sarcastic] ?? -1)"
+		sarcasticTraitLabel.text = "Use Sarcastically: \(emoji.traits[.sarcastic] ?? -1)"
 		allLabels.forEach { label in
 			let prevCenter = label.center
 			label.sizeToFit()

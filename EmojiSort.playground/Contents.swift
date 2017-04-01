@@ -11,17 +11,15 @@
 
 // GIVE AN EXPLAINATION OF HOW RECURSIVE ALGORITHMS FUNCTION DIFFERENTLY TO ITERATIVE (MAYBE GIVE A VISUALISATION OF THE CODE THAT IS ACTUALLY BEING RUN AND AN EXPLAINATION TO THE USER)
 
-
 // *** CLASSES/STRUCTS ***:
 // EmojiSortScene: UIVIEW <Lays out everything and performs all the animation needed> [EVERYTHING IS CONTAINED WITHIN THE SORTING SCENE]
-// Sorter <THE BRAIN: Does the actual sorting of the emojis> (bubblesort, insertionsort, selectionsort, mergesort, quicksort, stupidsort [stop after a few steps and explain why its bad])
+// Sorter <THE BRAIN: Does the actual sorting of the emojis> (bubblesort, insertionsort, selectionsort, mergesort, quicksort, stupidsort [stop after as few steps and explain why its bad])
 // SortStep <A struct containing a move>
 // Emoji: UILabel, Sortable (prot), Hashable (prot) <traits: funnyness, >
 // EmojiTrait ENUM
 // EmojiTeacher: UILabel, <PROVIDES HELPFUL KNOWLEDGE ON ALL THE ALGORITHMS>
 // SpeechBubble: UILabel <Produced by the emoji techer when they have something to say>
 // SortingArm: UIView <the moving arm that 'picks up' emojis and moves them about> <has functions to 'pinch(emoji:SortableEmoji)' 'unpinchEmoji() -> SortableEmoji'>
-
 
 // TODO: *** FOR 23/03 ***
 // - 'Hard stuff' pretty much done.
@@ -47,4 +45,4 @@ PlaygroundPage.current.liveView = s2
 
 
 
-let s = "jkkkfg"
+let s = "jkjnnnfjg"

@@ -25,7 +25,7 @@ public final class BarChartView: UICollectionView, UICollectionViewDelegateFlowL
 	
 	public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
 		// make each cell just the right width so that we can show them all without scrolling
-		let idealWidth =  CGFloat(Int(self.frame.size.width)/Int(self.items.count))-25
+		let idealWidth =  CGFloat(Int(self.frame.size.width)/Int(self.items.count))-33
 		let width:CGFloat = idealWidth > 0 ? idealWidth : 1
 		return CGSize(width: width, height: self.frame.height)
 	}
@@ -49,7 +49,7 @@ public final class BarChartView: UICollectionView, UICollectionViewDelegateFlowL
 	}
 	
 	public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-		return 22
+		return 31
 	}
 	
 }

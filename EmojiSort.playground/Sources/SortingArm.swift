@@ -54,7 +54,7 @@ public final class SortingArm: UIView {
 	// MARK: Constants
 	
 	public static let openedAngle:CGFloat = 0.65
-	public static let grabbedAngle:CGFloat = 0.38
+	public static let grabbedAngle:CGFloat = 0.35
 	
 	// MARK: Claw Elements
 	
