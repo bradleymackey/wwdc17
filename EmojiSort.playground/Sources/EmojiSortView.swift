@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import AVFoundation
 
 /// protocol that notifies the reciever of any noteworthy changes to the class
 public protocol EmojiSortViewDelegate: class {
@@ -93,6 +94,10 @@ public final class EmojiSortView: UIView, OptionChangeReactable, TeacherViewDele
 	// MARK: Blur View
 	
 	private lazy var effectView: UIVisualEffectView = UIVisualEffectView(frame: self.bounds)
+	
+	// MARK: Audio Playing
+	
+	private lazy var tadaSound = try! AVAudioPlayer(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "tada", ofType: "caf")!))
 
 	
 	// MARK: Init
@@ -229,6 +234,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable, TeacherViewDele
 				self.moveGrabber(to: self.sortingArm1.startingPosition, isExtra: false, time: stepTime)
 				self.moveGrabber(to: self.sortingArm2.startingPosition, isExtra: true, time: stepTime)
 				self.isSorting = false
+				self.tadaSound.play()
 				return
 			}
 			self.perform(step: steps[self.nextStepToPerform], time:timer.timeInterval)
@@ -515,6 +521,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable, TeacherViewDele
 	
 	private func highlight(emoji:Emoji, intensitity:AlgorithmStep.StepType.HighlightIntensity, time:TimeInterval) {
 		DispatchQueue.main.async {
+			
 			let animation = CABasicAnimation(keyPath: "transform.scale")
 			animation.duration = time/8 // how long the animation will take
 			animation.repeatCount = 1

@@ -16,4 +16,4 @@ let scene = ContainerView(emojiToSort: emojis, teacher: teacher)
 // present the scene
 PlaygroundPage.current.liveView = scene
 
-let s = "fjfjg"
+let s = "fjf"
