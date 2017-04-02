@@ -184,6 +184,18 @@ public final class OptionView: UIView, EmojiSortViewDelegate, TeacherViewDelegat
 		allButtons.forEach { $0.isEnabled = true }
 	}
 	
+	private var showcasedElement = false
+	
+	public func showcaseBegan() {
+		showcasedElement = true
+		allButtons.forEach { $0.isEnabled = false }
+	}
+	
+	public func showcaseEnded() {
+		showcasedElement = false
+		allButtons.forEach { $0.isEnabled = true }
+	}
+	
 	// MARK: TeacherViewDelegate
 	
 	public func interactionReady(fadeDuration:TimeInterval) {

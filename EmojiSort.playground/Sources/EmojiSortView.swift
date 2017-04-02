@@ -4,6 +4,8 @@ import UIKit
 /// protocol that notifies the reciever of any noteworthy changes to the class
 public protocol EmojiSortViewDelegate: class {
 	func sortingComplete()
+	func showcaseBegan()
+	func showcaseEnded()
 }
 
 
@@ -534,6 +536,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable, TeacherViewDele
 		if isSorting { return }
 		if movingEmoji { return }
 		if let showcased = heldElement {
+			self.delegate?.showcaseEnded()
 			UIView.animate(withDuration: 0.3) {
 				self.emojis.values.forEach { $0.alpha = 1 }
 				self.barChartView.alpha = 1
@@ -565,6 +568,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable, TeacherViewDele
 				self.barChartView.alpha = 0.1
 				self.helperLabel.alpha = 0
 			}
+			self.delegate?.showcaseBegan()
 		}
 	}
 	

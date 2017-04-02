@@ -13,12 +13,17 @@
 		<string>There are many ways we can go about sorting such a list.</string>
 		<string>The set of rules we follow to complete a task like sorting is called an ALGORITHM.</string>
 		<string>Some really smart people have already done the hard work and figured out some sorting algorithms for us.</string>
+		<string>Some sorting algorithms are much better than others though...</string>
+		<string>The quality of a sorting algorithm is usually measured by the NUMBER OF COMPARISONS the algorithm does.</string>
 		<string>Let&apos;s check some of them out by sorting some of my emoji friends!</string>
 	</array>
 	<key>bubble_sort</key>
 	<array>
-		<string>test</string>
-		<string>test</string>
+		<string>This is a slow but simple sorting algorithm.</string>
+		<string>It scans through the list again and again...</string>
+		<string>...each time pushing the biggest element to the top.</string>
+		<string>It has to do lots of comparisons in order to figure this out though.</string>
+		<string>It&apos;s only practical for long lists if the list is very nearly sorted already.</string>
 	</array>
 	<key>selection_sort</key>
 	<array>

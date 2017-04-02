@@ -65,7 +65,7 @@ public final class TitleLabel: UILabel {
 		switch style {
 		case .narratorTalk:
 			return {
-				self.font = UIFont.boldSystemFont(ofSize: 26)
+				self.font = UIFont.boldSystemFont(ofSize: 24)
 				self.textColor = .white
 			}
 		case .userInteractionPrompt:

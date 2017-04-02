@@ -63,6 +63,7 @@ public final class TeacherView: UIView, OptionChangeReactable {
 	
 	private var currentState:State = .welcomeSequence(currentPhraseIndex: 0)
 	
+	private var algorithmRunningSpeechTimer:Timer?
 
 	// MARK: Init
 
@@ -94,6 +95,11 @@ public final class TeacherView: UIView, OptionChangeReactable {
 	
 	required public init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+	
+	deinit {
+		algorithmRunningSpeechTimer?.invalidate()
+		snoringTimer?.invalidate()
 	}
 	
 	// MARK: Setup Methods
@@ -132,6 +138,7 @@ public final class TeacherView: UIView, OptionChangeReactable {
 		guard let touch = touches.first else { return }
 		let location = touch.location(in: self)
 		if teacher.frame.contains(location) {
+			algorithmRunningSpeechTimer?.invalidate()
 			defer { updateLabelForCurrentState() }
 			guard !teacherInitiallyTouched else { return }
 			teacherInitiallyTouched = true
@@ -168,13 +175,43 @@ public final class TeacherView: UIView, OptionChangeReactable {
 		}
 	}
 	
+	private func listOfText(for algorithm: Sorter.Algorithm) -> [String] {
+		switch algorithm {
+		case .bubbleSort:
+			return teacher.bubbleSortPhrases
+		case .insertionSort:
+			return teacher.insertionSortPhrases
+		case .selectionSort:
+			return teacher.selectionSortPhrases
+		case .mergeSort:
+			return teacher.mergeSortPhrases
+		case .stupidSort:
+			return teacher.stupidSortPhrases
+		}
+	}
+	
 	// MARK: Delegate
 	
+	var currentIndex = 0
+	
 	public func sort(withAlgorithm algorithm: Sorter.Algorithm, trait: Emoji.Trait, speed: AlgorithmSpeed) {
-		
+		algorithmRunningSpeechTimer?.invalidate()
+		let listOfPhrases = listOfText(for: algorithm)
+		algorithmRunningSpeechTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { (timer) in
+			defer {
+				if self.currentIndex >= listOfPhrases.count {
+					self.currentIndex = 0
+				} else {
+					self.currentIndex += 1
+				}
+			}
+			let text = self.currentIndex < listOfPhrases.count ? listOfPhrases[self.currentIndex] : listOfPhrases[0]
+			self.teacherLabel.animateTitle(to: .teacherTalk, position: self.teacherLabel.center, text: text)
+		}
 	}
 	
 	public func randomisePositions() {
+		algorithmRunningSpeechTimer?.invalidate()
 		teacher.currentEmotion = .cool
 		teacherLabel.animateTitle(to: .narratorTalk, position: teacherLabel.center, text: "Let's mix things up!")
 	}
@@ -184,6 +221,7 @@ public final class TeacherView: UIView, OptionChangeReactable {
 	}
 	
 	public func newAlgorithmTapped(algorithm: Sorter.Algorithm) {
+		algorithmRunningSpeechTimer?.invalidate()
 		// emoji teacher should briefly explain algorithm before we use it
 		switch algorithm {
 		case .bubbleSort:
