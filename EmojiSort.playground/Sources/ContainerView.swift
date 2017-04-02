@@ -26,6 +26,7 @@ public final class ContainerView: UIView {
 		// set delegates to enable communication between views
 		optionView.sortDelegate = sortingView
 		optionView.teacherDelegate = teacherView
+		sortingView.delegate = optionView
 		
 		super.init(frame: frame)
 		

@@ -3,14 +3,6 @@
 
 // ITS GOOD BECAUSE ITS ALSO REVISION ;)
 
-// before it begins have a little introduction where the emoji teacher BRIEFLY explains why sorting algorithms are so important and a brief introduction to running times
-// Premise: - A demo of lots of sorting algorithms, applied to a set of a few (15 ish) emojis.
-//			- User can choose what trait and sorting algoritm to use
-//			- The emojis will have their order randomised and then will be sorted (animated, a sorting arm picks each one up and drops it in a new position) (UIKIT DYNAMICS, pivoting on the fingers of the sorting arm)
-//			- LOTS OF OTHER UNNECCARY ANIMATIONS TO MAKE IT LOOK SUPER FANCY (spritekit background maybe?)
-
-// GIVE AN EXPLAINATION OF HOW RECURSIVE ALGORITHMS FUNCTION DIFFERENTLY TO ITERATIVE (MAYBE GIVE A VISUALISATION OF THE CODE THAT IS ACTUALLY BEING RUN AND AN EXPLAINATION TO THE USER)
-
 // *** CLASSES/STRUCTS ***:
 // EmojiSortScene: UIVIEW <Lays out everything and performs all the animation needed> [EVERYTHING IS CONTAINED WITHIN THE SORTING SCENE]
 // Sorter <THE BRAIN: Does the actual sorting of the emojis> (bubblesort, insertionsort, selectionsort, mergesort, quicksort, stupidsort [stop after as few steps and explain why its bad])
@@ -44,4 +36,4 @@ PlaygroundPage.current.liveView = scene
 
 
 
-let s = "jjkjkjnbfjg"
+let s = "fjjjjg"

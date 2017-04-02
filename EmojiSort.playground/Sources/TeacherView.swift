@@ -11,13 +11,10 @@ public final class TeacherView: UIView, OptionChangeReactable {
 	
 	// MARK: Properties
 	
-	private var currentSceneChapter:SceneChapter = .welcome
-	
 	private var teacher:EmojiTeacher
 	
 	private var animator: UIDynamicAnimator?
 
-	
 	private let collisionBehavior: UICollisionBehavior
 	private let gravityBehavior: UIGravityBehavior
 	private let zLabelBehavior: UIDynamicItemBehavior
@@ -43,6 +40,8 @@ public final class TeacherView: UIView, OptionChangeReactable {
 		}
 	}
 	
+
+	
 	// MARK: Init
 
 	public init(frame:CGRect, teacher:EmojiTeacher) {
@@ -53,7 +52,8 @@ public final class TeacherView: UIView, OptionChangeReactable {
 		self.collisionBehavior.translatesReferenceBoundsIntoBoundary = true
 		self.gravityBehavior = UIGravityBehavior(items: [])
 		self.zLabelBehavior = UIDynamicItemBehavior(items: [])
-		self.zLabelBehavior.elasticity = 0.4
+		self.zLabelBehavior.elasticity = 0.2
+		self.zLabelBehavior.density = 0.4
 		
 		super.init(frame: frame)
 		
@@ -63,6 +63,7 @@ public final class TeacherView: UIView, OptionChangeReactable {
 		self.animator?.addBehavior(zLabelBehavior)
 		
 		self.backgroundColor = UIColor(colorLiteralRed: 0, green: 0.5, blue: 1, alpha: 1)
+		self.clipsToBounds = true
 		self.layer.borderWidth = 0.5
 		self.layer.borderColor = UIColor.black.cgColor
 		
@@ -88,15 +89,23 @@ public final class TeacherView: UIView, OptionChangeReactable {
 			snoreLabel.textAlignment = .center
 			snoreLabel.center = CGPoint(x: self.teacher.center.x, y: self.teacher.center.y-10)
 			snoreLabel.text = "z"
-			snoreLabel.font = UIFont.boldSystemFont(ofSize: CGFloat(arc4random_uniform(5)+10))
+			snoreLabel.textColor = .white
+			snoreLabel.font = UIFont.systemFont(ofSize: CGFloat(arc4random_uniform(4)+6))
 			snoreLabel.sizeToFit()
 			self.zLabels.insert(snoreLabel, at: 0)
 			self.addSubview(snoreLabel)
 			self.gravityBehavior.addItem(snoreLabel)
 			self.collisionBehavior.addItem(snoreLabel)
 			self.zLabelBehavior.addItem(snoreLabel)
-			self.zLabelBehavior.addLinearVelocity(CGPoint(x: CGFloat(Int(arc4random_uniform(400))-200), y: -450), for: snoreLabel)
+			self.zLabelBehavior.addLinearVelocity(CGPoint(x: CGFloat(Int(arc4random_uniform(400))-200), y: -250), for: snoreLabel)
 		}
+	}
+	
+	// MARK: Touches
+	
+	public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		guard let touch = touches.first else { return }
+		
 	}
 	
 	// MARK: Delegate

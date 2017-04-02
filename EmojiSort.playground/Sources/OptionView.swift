@@ -13,7 +13,7 @@ public protocol OptionChangeReactable: class {
 }
 
 
-public final class OptionView: UIView {
+public final class OptionView: UIView, EmojiSortViewDelegate {
 	
 	// MARK: Delegate
 	
@@ -38,6 +38,10 @@ public final class OptionView: UIView {
 	
 	private var sortButton = UIButton(type: .system)
 	private var randomiseButton = UIButton(type: .system)
+	
+	private var allButtons:[UIButton] {
+		return [traitButton,algorithmButton,speedButton,sortButton,randomiseButton]
+	}
 	
 	// MARK: State
 	
@@ -73,11 +77,11 @@ public final class OptionView: UIView {
 		[traitLabel,algorithmLabel,speedLabel].forEach { label in
 			defer { currentOffsetMultiplier += 1 }
 			label.text = traitTitles[currentOffsetMultiplier-1]
-			label.font = UIFont.systemFont(ofSize: 11)
+			label.font = UIFont.systemFont(ofSize: 9)
 			label.textColor = .darkGray
 			label.textAlignment = .center
 			label.sizeToFit()
-			label.center = CGPoint(x: CGFloat(currentOffsetMultiplier)*self.frame.width/4, y: (self.frame.height/2.4)-20)
+			label.center = CGPoint(x: self.frame.width/2, y: (CGFloat(currentOffsetMultiplier)*(self.frame.height/5))-12)
 			self.addSubview(label)
 		}
 	}
@@ -92,7 +96,7 @@ public final class OptionView: UIView {
 			button.titleLabel?.adjustsFontSizeToFitWidth = true
 			button.titleLabel?.minimumScaleFactor = 0.5
 			button.sizeToFit()
-			button.center = CGPoint(x: CGFloat(currentOffsetMultiplier)*self.frame.width/4, y: self.frame.height/2.4)
+			button.center = CGPoint(x: self.frame.width/2, y: (CGFloat(currentOffsetMultiplier)*(self.frame.height/5)))
 			self.addSubview(button)
 		}
 		
@@ -101,9 +105,9 @@ public final class OptionView: UIView {
 		[randomiseButton,sortButton].forEach { button in
 			defer { currentOffsetMultiplier += 1 }
 			button.setTitle(extraButtonTitles[currentOffsetMultiplier-1], for: .normal)
-			button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+			button.titleLabel?.font = UIFont.monospacedDigitSystemFont(ofSize: 16, weight: 3)
 			button.sizeToFit()
-			button.center = CGPoint(x: CGFloat(currentOffsetMultiplier)*self.frame.width/3, y: 3*(self.frame.height/4))
+			button.center = CGPoint(x: CGFloat(currentOffsetMultiplier)*self.frame.width/3, y: 4*(self.frame.height/5))
 			self.addSubview(button)
 		}
 	}
@@ -149,16 +153,26 @@ public final class OptionView: UIView {
 	}
 	
 	@objc private func randomiseButtonPressed() {
+		// disable all buttons until sorting completes
+		allButtons.forEach { $0.isEnabled = false }
+		
 		self.sortDelegate?.randomisePositions()
 		self.teacherDelegate?.randomisePositions()
 	}
 	
 	@objc private func sortButtonPressed() {
+		// disable all buttons until sorting completes
+		allButtons.forEach { $0.isEnabled = false }
+		
 		self.sortDelegate?.sort(withAlgorithm: currentAlgorithm, trait: currentTrait, speed: currentSpeed)
 		self.teacherDelegate?.sort(withAlgorithm: currentAlgorithm, trait: currentTrait, speed: currentSpeed)
 	}
 	
+	// MARK: EmojiSortViewDelegate
 	
+	public func sortingComplete() {
+		allButtons.forEach { $0.isEnabled = true }
+	}
 	
 	
 }

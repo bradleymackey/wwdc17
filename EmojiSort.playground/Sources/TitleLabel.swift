@@ -1,25 +1,24 @@
 import Foundation
 import UIKit
 
-public protocol TitleLabelDelegate: class {
-	func titleLabelCollisionBoundsNeedUpdate(for label:TitleLabel)
-}
-
 public final class TitleLabel: UILabel {
 	
 	// MARK: Enums
 	
 	public enum TitleStyle {
-		case title
+		/// when the 'narrator' is talking - that is, the person telling us to wake up the emoji teacher etc.
+		case narratorTalk
+		/// the text style that displays when we need to take action on the emoji teacher.
 		case userInteractionPrompt
+		/// text style used when the emoji teacher is talking
 		case teacherTalk
+		/// text style used on the `EmojiSortView`, helping the user by telling them what to do.
+		case sortHelp
 	}
 	
 	// MARK: Properties
 	
-	public weak var delegate:TitleLabelDelegate?
-	
-	public var currentStyle = TitleStyle.title
+	public var currentStyle = TitleStyle.narratorTalk
 	
 	private var flipFlopTimer:Timer?
 	private var flipFlopFirstTitle:(style:TitleStyle,title:String)?
@@ -51,26 +50,30 @@ public final class TitleLabel: UILabel {
 			self.applyAttributes(for: style)()
 			self.sizeToFit()
 			self.center = position
-			self.delegate?.titleLabelCollisionBoundsNeedUpdate(for: self)
 		}, completion: nil)
 	}
 	
 	
 	private func applyAttributes(for style:TitleStyle) -> (()->Void) {
 		switch style {
-		case .title:
+		case .narratorTalk:
 			return {
-				self.font = UIFont.boldSystemFont(ofSize: 48)
-				self.textColor = .black
+				self.font = UIFont.boldSystemFont(ofSize: 32)
+				self.textColor = .white
 			}
 		case .userInteractionPrompt:
 			return {
 				self.font = UIFont.boldSystemFont(ofSize: 20)
-				self.textColor = .lightGray
+				self.textColor = .white
 			}
 		case .teacherTalk:
 			return {
-				self.font = UIFont.systemFont(ofSize: 25)
+				self.font = UIFont.systemFont(ofSize: 20)
+				self.textColor = .white
+			}
+		case .sortHelp:
+			return {
+				self.font = UIFont.boldSystemFont(ofSize: 12)
 				self.textColor = .darkGray
 			}
 		}

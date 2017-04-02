@@ -33,14 +33,26 @@ public final class EmojiTeacher: UILabel {
 	private var talkingTimer:Timer?
 	private var talkingMouthOpen = true
 	
+	// MARK: Speech
+	
+	private var introPhrases = [String]()
+	private var bubbleSortPhrases = [String]()
+	private var selectionSortPhrases = [String]()
+	private var insertionSortPhrases = [String]()
+	private var mergeSortPhrases = [String]()
+	private var stupidSortPhrases = [String]()
+	
 	// MARK: Init
 	
 	public init() {
+		
 		super.init(frame: .zero)
-		self.font = UIFont.systemFont(ofSize: 35)
+		self.font = UIFont.systemFont(ofSize: 26)
 		self.text = currentEmotion.rawValue
 		self.textAlignment = .center
 		self.sizeToFit()
+		
+		self.populatePhrases(fromPlist: "TeacherTalk")
 	}
 	
 	required public init?(coder aDecoder: NSCoder) {
@@ -73,8 +85,15 @@ public final class EmojiTeacher: UILabel {
 		self.talkingMouthOpen = true
 	}
 	
-	
-	
-	
+	private func populatePhrases(fromPlist filename:String) {
+		guard let path = Bundle.main.path(forResource: filename, ofType: "plist") else { fatalError("Cannot find file.") }
+		guard let phrasesDict = NSDictionary(contentsOfFile: path) as? [String:[String]] else { fatalError("Cannot read phrases.") }
+		self.introPhrases = phrasesDict["introduction"]!
+		self.bubbleSortPhrases = phrasesDict["bubble_sort"]!
+		self.insertionSortPhrases = phrasesDict["insertion_sort"]!
+		self.selectionSortPhrases = phrasesDict["selection_sort"]!
+		self.mergeSortPhrases = phrasesDict["merge_sort"]!
+		self.stupidSortPhrases = phrasesDict["stupid_sort"]!
+	}
 	
 }

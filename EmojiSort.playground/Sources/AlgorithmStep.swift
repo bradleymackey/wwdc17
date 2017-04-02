@@ -6,6 +6,7 @@ public struct AlgorithmStep {
 	
 	/// The types of algorithm step that can be executed.
 	public enum StepType {
+		
 		/// Do emphasise `mainIndex` and optionally `extraIndex` and `extraExtraIndex`.
 		case highlight
         
@@ -133,7 +134,4 @@ public struct AlgorithmStep {
 		          extraIndex: extraIndex)
 	}
 
-	
 }
-
-

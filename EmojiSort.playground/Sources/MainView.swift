@@ -86,7 +86,7 @@ public final class MainView: UIView {
 		self.addSubview(instructionsTitle)
 		
 		self.teacherStartSnoring()
-		self.instructionsTitle.startFlipFlop(duration: 2, position: instructionsTitle.center, firstStyle: .title, firstText: "Uh oh...", secondStyle: .userInteractionPrompt, secondText: "Tap to wake up the teacher.")
+		self.instructionsTitle.startFlipFlop(duration: 2, position: instructionsTitle.center, firstStyle: .sortHelp, firstText: "Uh oh...", secondStyle: .sortHelp, secondText: "Tap to wake up the teacher.")
 		
 		
 		

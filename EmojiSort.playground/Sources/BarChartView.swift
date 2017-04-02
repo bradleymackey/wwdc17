@@ -3,6 +3,8 @@ import UIKit
 
 public final class BarChartView: UICollectionView, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
 	
+	// MARK: Data Source
+	
 	public var items = [CGFloat]()
 	
 	// MARK: Init
@@ -36,11 +38,10 @@ public final class BarChartView: UICollectionView, UICollectionViewDelegateFlowL
 	
 	public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = self.dequeueReusableCell(withReuseIdentifier: BarCell.id, for: indexPath) as! BarCell
-		if let max = items.max() {
-			let value = items[indexPath.item]
-			let ratio:CGFloat = max != 0 ? value / max : 0
-			cell.barHeightConstraint?.constant = self.frame.height * ratio
-		}
+		let value = items[indexPath.item]
+		// ratio is over 100 because all stats are out of 100
+		let ratio:CGFloat = value / 100
+		cell.barHeightConstraint?.constant = self.frame.height * ratio
 		return cell
 	}
 	

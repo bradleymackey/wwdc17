@@ -11,6 +11,10 @@ public protocol EmojiSortViewDelegate: class {
 /// - note: this class handles all of its own animations
 public final class EmojiSortView: UIView, OptionChangeReactable {
 	
+	// MARK: Static Constants
+	
+	public static let helperLabelFlipFlopInterval: TimeInterval = 3
+	
 	// MARK: Properties
 	
 	/// set the delegate to recieve notifications about important changes.
@@ -18,12 +22,6 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 	
 	/// the standard positions where each element should rest
 	private let elementPositions:[CGPoint]
-	
-	/// used by merge sort when element groups split
-	private enum SplitDirection: CGFloat {
-		case left = -2
-		case right = 2
-	}
 	
 	/// the postitons and emojis that currently correspond to that position
 	private var emojis:[Int:Emoji]
@@ -53,6 +51,9 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 	private var isSorting = false {
 		didSet {
 			guard oldValue != isSorting else { return }
+			UIView.animate(withDuration: 0.1) {
+				self.helperLabel.alpha = self.isSorting ? 0 : 1
+			}
 			guard !isSorting else { return }
 			self.delegate?.sortingComplete()
 		}
@@ -62,16 +63,21 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 	
 	// setup performed once `self` has initalised
 	
-	private var emojiTitleLabel = UILabel(frame: .zero)
-	private var happyTraitLabel = UILabel(frame: .zero)
-	private var popularirtyTraitLabel = UILabel(frame: .zero)
-	private var emotionTraitLabel = UILabel(frame: .zero)
-	private var humourTraitLabel = UILabel(frame: .zero)
-	private var sarcasticTraitLabel = UILabel(frame: .zero)
+	private lazy var helperLabel:TitleLabel = TitleLabel(position: CGPoint(x: self.center.x, y: self.frame.height/8), initialText: "Choose sorting options!")
 	
-	private var allLabels:[UILabel] {
+	private let emojiTitleLabel = UILabel(frame: .zero)
+	private let happyTraitLabel = UILabel(frame: .zero)
+	private let popularirtyTraitLabel = UILabel(frame: .zero)
+	private let emotionTraitLabel = UILabel(frame: .zero)
+	private let humourTraitLabel = UILabel(frame: .zero)
+	private let sarcasticTraitLabel = UILabel(frame: .zero)
+	
+	/// for convenience - gets all trait labels
+	private var allTraitLabels:[UILabel] {
 		return [emojiTitleLabel,happyTraitLabel,popularirtyTraitLabel,emotionTraitLabel,humourTraitLabel,sarcasticTraitLabel]
 	}
+	
+	// MARK: Bar Chart
 	
 	private var barChartView:BarChartView!
 	
@@ -132,6 +138,11 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 	
 	private func setupLabels() {
 		
+		// setup the flip flop helper label
+		self.helperLabel.startFlipFlop(duration: EmojiSortView.helperLabelFlipFlopInterval, position: self.helperLabel.center, firstStyle: .sortHelp, firstText: "Choose sorting options!", secondStyle: .sortHelp, secondText: "Tap emojis for trait info!")
+		self.addSubview(helperLabel)
+		
+		// setup trait info labels
 		emojiTitleLabel.font = UIFont.boldSystemFont(ofSize: 21)
 		emojiTitleLabel.textColor = .black
 		emojiTitleLabel.textAlignment = .center
@@ -144,7 +155,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 			defer { additionalOffset += 13 }
 			label.font = UIFont.systemFont(ofSize: 10)
 			label.textColor = .darkGray
-			label.center = CGPoint(x: emojiTitleLabel.center.x, y: emojiTitleLabel.center.y+30+additionalOffset)
+			label.center = CGPoint(x: emojiTitleLabel.center.x, y: emojiTitleLabel.center.y+20+additionalOffset)
 			label.textAlignment = .center
 			label.alpha = 0
 			self.addSubview(label)
@@ -170,9 +181,9 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 			let val = emojis[index]!.traits[attribute]!
 			traitVals.append(CGFloat(val))
 		}
-		for i in indiciesFree {
-			traitVals[i] = 0
-		}
+//		for i in indiciesFree {
+//			traitVals[i] = 0
+//		}
 		return traitVals
 	}
 	
@@ -202,9 +213,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 			// update the bar chart each step
 			defer { self.nextStepToPerform += 1 }
 			self.barChartView.items = self.getValuesInDisplayOrder(forAttribute: self.currentSortingTrait)
-			self.barChartView.performBatchUpdates({
-				self.barChartView.reloadSections([0])
-			}, completion: nil)
+			self.barChartView.reloadData()
 			guard self.nextStepToPerform < steps.count else {
 				timer.invalidate()
 				self.moveGrabber(to: self.sortingArm1.startingPosition, isExtra: false, time: stepTime)
@@ -517,6 +526,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 			UIView.animate(withDuration: 0.3) {
 				self.emojis.values.forEach { $0.alpha = 1 }
 				self.barChartView.alpha = 1
+				self.helperLabel.alpha = 1
 			}
 			let path = moveBackPath(fromCurrentPosition: showcased.center, toIndex: indiciesFree.first!)
 			move(emoji: showcased, alongPath: path.path, endPoint: path.endPoint, time: 2, useGrabber: true)
@@ -542,6 +552,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 			UIView.animate(withDuration: 0.3) {
 				emojisToFade.forEach { $0.alpha = 0.1 }
 				self.barChartView.alpha = 0.1
+				self.helperLabel.alpha = 0
 			}
 		}
 	}
@@ -553,39 +564,51 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 		emotionTraitLabel.text = "Emotion: \(emoji.traits[.emotion] ?? -1)"
 		humourTraitLabel.text = "Humour: \(emoji.traits[.humour] ?? -1)"
 		sarcasticTraitLabel.text = "Use Sarcastically: \(emoji.traits[.sarcastic] ?? -1)"
-		allLabels.forEach { label in
+		allTraitLabels.forEach { label in
 			let prevCenter = label.center
 			label.sizeToFit()
 			label.center = prevCenter
 		}
 		UIView.animate(withDuration: 0.3) {
-			self.allLabels.forEach { $0.alpha = 1 }
+			self.allTraitLabels.forEach { $0.alpha = 1 }
 		}
 	}
 	
 	private func hideLabels() {
 		UIView.animate(withDuration: 0.3) {
-			self.allLabels.forEach { $0.alpha = 0 }
+			self.allTraitLabels.forEach { $0.alpha = 0 }
 		}
 	}
 	
 	// MARK: Delegate
 	
 	public func sort(withAlgorithm algorithm: Sorter.Algorithm, trait: Emoji.Trait, speed: AlgorithmSpeed) {
+		if isSorting || heldElement != nil {
+			self.delegate?.sortingComplete()
+			return
+		}
 		performSortAnimation(for: algorithm, trait: trait, stepTime: speed.rawValue)
 		currentSortingTrait = trait
 	}
 	
 	public func randomisePositions() {
+		if isSorting || heldElement != nil {
+			self.delegate?.sortingComplete()
+			return
+		}
 		randomiseEmojiPositions()
 	}
 	
 	public func newTraitTapped(trait: Emoji.Trait) {
+		if isSorting {
+			self.delegate?.sortingComplete()
+			return
+		}
 		currentSortingTrait = trait
 	}
 	
 	public func newAlgorithmTapped(algorithm: Sorter.Algorithm) {
-		fatalError("'EmojiSortView' does not need to respond to ")
+		fatalError("'EmojiSortView' does not need to respond to 'newAlgorithmTapped'")
 	}
 	
 }
