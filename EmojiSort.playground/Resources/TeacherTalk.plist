@@ -36,7 +36,11 @@
 	<key>insertion_sort</key>
 	<array>
 		<string>Insertion Sort is not very efficient on large lists.</string>
-		<string>test</string>
+		<string>It&apos;s useful because of how simple it is to code.</string>
+		<string>It can also start sorting a list before we even know what the whole list is.</string>
+		<string>Although, this is not RECURSIVE...</string>
+		<string>...so it requires a lot of comparisons...</string>
+		<string>...making it slow if the list is big.</string>
 	</array>
 	<key>merge_sort</key>
 	<array>
