@@ -32,7 +32,6 @@ public final class MainView: UIView {
 	public lazy var instructionsTitle:TitleLabel = TitleLabel(position: CGPoint(x: self.center.x, y: self.center.y+self.frame.height/4), initialText: "Uh oh...")
 	
 	private var snoringTimer:Timer?
-	private var zCleanupTimer:Timer?
 	
 	private var animator: UIDynamicAnimator?
 	private var snapBehavior: UISnapBehavior?

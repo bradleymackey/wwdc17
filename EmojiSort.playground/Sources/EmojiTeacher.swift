@@ -37,7 +37,7 @@ public final class EmojiTeacher: UILabel {
 	
 	public init() {
 		super.init(frame: .zero)
-		self.font = UIFont.systemFont(ofSize: 52)
+		self.font = UIFont.systemFont(ofSize: 35)
 		self.text = currentEmotion.rawValue
 		self.textAlignment = .center
 		self.sizeToFit()

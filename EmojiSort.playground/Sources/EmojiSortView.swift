@@ -515,9 +515,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 		if movingEmoji { return }
 		if let showcased = heldElement {
 			UIView.animate(withDuration: 0.3) {
-				self.emojis.values.forEach { e in
-					e.alpha = 1
-				}
+				self.emojis.values.forEach { $0.alpha = 1 }
 				self.barChartView.alpha = 1
 			}
 			let path = moveBackPath(fromCurrentPosition: showcased.center, toIndex: indiciesFree.first!)
@@ -542,9 +540,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 			}
 			guard emojiWasTouched else { return }
 			UIView.animate(withDuration: 0.3) {
-				emojisToFade.forEach { e in
-					e.alpha = 0.1
-				}
+				emojisToFade.forEach { $0.alpha = 0.1 }
 				self.barChartView.alpha = 0.1
 			}
 		}
@@ -562,19 +558,15 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 			label.sizeToFit()
 			label.center = prevCenter
 		}
-		UIView.animate(withDuration: 0.3, animations: {
-			self.allLabels.forEach { label in
-				label.alpha = 1
-			}
-		})
+		UIView.animate(withDuration: 0.3) {
+			self.allLabels.forEach { $0.alpha = 1 }
+		}
 	}
 	
 	private func hideLabels() {
-		UIView.animate(withDuration: 0.3, animations: {
-			self.allLabels.forEach { label in
-				label.alpha = 0
-			}
-		})
+		UIView.animate(withDuration: 0.3) {
+			self.allLabels.forEach { $0.alpha = 0 }
+		}
 	}
 	
 	// MARK: Delegate
@@ -593,7 +585,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 	}
 	
 	public func newAlgorithmTapped(algorithm: Sorter.Algorithm) {
-		fatalError("don't care about this here")
+		fatalError("'EmojiSortView' does not need to respond to ")
 	}
 	
 }

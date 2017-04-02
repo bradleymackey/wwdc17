@@ -30,20 +30,18 @@
 import UIKit
 import PlaygroundSupport
 
+// get the emojis that we are going to sort
 var emojis = Emoji.getEmojisFrom(plist: "EmojiStats")
 
-
+// create a teacher
 let teacher = EmojiTeacher()
-//let scene = MainView(emojiToSort: emojis, emojiTeacher: teacher)
 
-let r = CGRect(x: 0, y: 0, width: 600, height: 350)
+// create the scene
+let scene = ContainerView(emojiToSort: emojis, teacher: teacher)
 
-//let s2 = EmojiSortView(frame: r, emojis: emojis)
-let s2 = ContainerView(frame: r, emojiToSort: emojis, teacher: teacher)
-
-
-PlaygroundPage.current.liveView = s2
+// present the scene
+PlaygroundPage.current.liveView = scene
 
 
 
-let s = "jfjg"
+let s = "jjkjkjnbfjg"
