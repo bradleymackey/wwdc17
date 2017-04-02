@@ -18,7 +18,10 @@ public final class TitleLabel: UILabel {
 	
 	// MARK: Properties
 	
-	public var currentStyle = TitleStyle.narratorTalk
+	public var currentStyle:TitleStyle
+	
+	
+	private let maxSize:CGSize
 	
 	private var flipFlopTimer:Timer?
 	private var flipFlopFirstTitle:(style:TitleStyle,title:String)?
@@ -26,14 +29,17 @@ public final class TitleLabel: UILabel {
 	
 	// MARK: Init
 	
-	public init(position:CGPoint,initialText:String) {
+	public init(position:CGPoint,initialText:String,initialStyle:TitleStyle,maxSize:CGSize) {
+		self.currentStyle = initialStyle
+		self.maxSize = maxSize
 		super.init(frame: .zero)
 		applyAttributes(for: currentStyle)()
 		self.text = initialText
 		self.textAlignment = .center
-		self.sizeToFit()
+		let size = self.sizeThatFits(maxSize)
+		self.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
 		self.center = position
-		self.numberOfLines = 1 // initally just one line
+		self.numberOfLines = 0 // initally just one line
 	}
 	
 	required public init?(coder aDecoder: NSCoder) {
@@ -48,7 +54,8 @@ public final class TitleLabel: UILabel {
 		UIView.transition(with: self, duration: 0.2, options: [.transitionCrossDissolve], animations: {
 			self.text = text
 			self.applyAttributes(for: style)()
-			self.sizeToFit()
+			let size = self.sizeThatFits(self.maxSize)
+			self.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
 			self.center = position
 		}, completion: nil)
 	}
@@ -58,17 +65,17 @@ public final class TitleLabel: UILabel {
 		switch style {
 		case .narratorTalk:
 			return {
-				self.font = UIFont.boldSystemFont(ofSize: 32)
+				self.font = UIFont.boldSystemFont(ofSize: 26)
 				self.textColor = .white
 			}
 		case .userInteractionPrompt:
 			return {
-				self.font = UIFont.boldSystemFont(ofSize: 20)
+				self.font = UIFont.boldSystemFont(ofSize: 14)
 				self.textColor = .white
 			}
 		case .teacherTalk:
 			return {
-				self.font = UIFont.systemFont(ofSize: 20)
+				self.font = UIFont.boldSystemFont(ofSize: 12)
 				self.textColor = .white
 			}
 		case .sortHelp:

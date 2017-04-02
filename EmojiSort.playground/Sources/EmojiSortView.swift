@@ -9,7 +9,7 @@ public protocol EmojiSortViewDelegate: class {
 
 /// This is the object that contains all the Emojis while we are sorting them, that handles ordering, splitting, joining, holding etc. it's how we know what is where at what time and basically manages all the sorting!!!
 /// - note: this class handles all of its own animations
-public final class EmojiSortView: UIView, OptionChangeReactable {
+public final class EmojiSortView: UIView, OptionChangeReactable, TeacherViewDelegate {
 	
 	// MARK: Static Constants
 	
@@ -63,7 +63,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 	
 	// setup performed once `self` has initalised
 	
-	private lazy var helperLabel:TitleLabel = TitleLabel(position: CGPoint(x: self.center.x, y: self.frame.height/8), initialText: "Choose sorting options!")
+	private lazy var helperLabel:TitleLabel = TitleLabel(position: CGPoint(x: self.center.x, y: self.frame.height/8), initialText: "Choose sorting options!", initialStyle:.sortHelp, maxSize: self.frame.size)
 	
 	private let emojiTitleLabel = UILabel(frame: .zero)
 	private let happyTraitLabel = UILabel(frame: .zero)
@@ -87,6 +87,11 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 			self.barChartView.reloadData()
 		}
 	}
+	
+	// MARK: Blur View
+	
+	private lazy var effectView: UIVisualEffectView = UIVisualEffectView(frame: self.bounds)
+
 	
 	// MARK: Init
 	
@@ -112,6 +117,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 		setupInitialPositions()
 		setupLabels()
 		setupBarChart()
+		setupBlur()
 	}
 	
 	required public init?(coder aDecoder: NSCoder) {
@@ -119,6 +125,11 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 	}
 	
 	// MARK: Setup Methods
+	
+	private func setupBlur() {
+		self.effectView.effect = UIBlurEffect(style: .light)
+		self.addSubview(effectView)
+	}
 	
 	private func setupInitialPositions() {
 		for i in 0..<emojis.count {
@@ -580,7 +591,7 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 		}
 	}
 	
-	// MARK: Delegate
+	// MARK: OptionChangeReactable
 	
 	public func sort(withAlgorithm algorithm: Sorter.Algorithm, trait: Emoji.Trait, speed: AlgorithmSpeed) {
 		if isSorting || heldElement != nil {
@@ -609,6 +620,17 @@ public final class EmojiSortView: UIView, OptionChangeReactable {
 	
 	public func newAlgorithmTapped(algorithm: Sorter.Algorithm) {
 		fatalError("'EmojiSortView' does not need to respond to 'newAlgorithmTapped'")
+	}
+	
+	// MARK: TeacherViewDelegate
+	
+	public func interactionReady(fadeDuration:TimeInterval) {
+		UIView.animate(withDuration: fadeDuration, animations: {
+			self.effectView.effect = nil
+		}) { (completed) in
+			guard completed else { return }
+			self.effectView.removeFromSuperview()
+		}
 	}
 	
 }

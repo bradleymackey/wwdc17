@@ -27,6 +27,8 @@ public final class ContainerView: UIView {
 		optionView.sortDelegate = sortingView
 		optionView.teacherDelegate = teacherView
 		sortingView.delegate = optionView
+		teacherView.sortViewDelegate = sortingView
+		teacherView.optionsDelegate = optionView
 		
 		super.init(frame: frame)
 		
@@ -39,7 +41,6 @@ public final class ContainerView: UIView {
 	required public init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
-	
 	
 }
 

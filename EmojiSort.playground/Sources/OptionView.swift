@@ -13,7 +13,7 @@ public protocol OptionChangeReactable: class {
 }
 
 
-public final class OptionView: UIView, EmojiSortViewDelegate {
+public final class OptionView: UIView, EmojiSortViewDelegate, TeacherViewDelegate {
 	
 	// MARK: Delegate
 	
@@ -49,6 +49,10 @@ public final class OptionView: UIView, EmojiSortViewDelegate {
 	private var currentTrait:Emoji.Trait = .happiness
 	private var currentSpeed:AlgorithmSpeed = .medium
 	
+	// MARK: Blur View
+	
+	private lazy var effectView: UIVisualEffectView = UIVisualEffectView(frame: self.bounds)
+	
 	// MARK: Init
 	
 	public override init(frame:CGRect) {
@@ -62,6 +66,7 @@ public final class OptionView: UIView, EmojiSortViewDelegate {
 		setupLabels()
 		setupButtons()
 		setupButtonActions()
+		setupBlur()
 	}
 	
 	required public init?(coder aDecoder: NSCoder) {
@@ -70,6 +75,11 @@ public final class OptionView: UIView, EmojiSortViewDelegate {
 	
 	
 	// MARK: Methods
+	
+	private func setupBlur() {
+		effectView.effect = UIBlurEffect(style: .light)
+		self.addSubview(effectView)
+	}
 	
 	private func setupLabels() {
 		var currentOffsetMultiplier = 1
@@ -172,6 +182,16 @@ public final class OptionView: UIView, EmojiSortViewDelegate {
 	
 	public func sortingComplete() {
 		allButtons.forEach { $0.isEnabled = true }
+	}
+	
+	// MARK: TeacherViewDelegate
+	
+	public func interactionReady(fadeDuration:TimeInterval) {
+		UIView.animate(withDuration: fadeDuration, animations: {
+			self.effectView.effect = nil
+		}) { (completed) in
+			self.effectView.removeFromSuperview()
+		}
 	}
 	
 	

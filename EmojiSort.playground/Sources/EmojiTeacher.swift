@@ -35,12 +35,12 @@ public final class EmojiTeacher: UILabel {
 	
 	// MARK: Speech
 	
-	private var introPhrases = [String]()
-	private var bubbleSortPhrases = [String]()
-	private var selectionSortPhrases = [String]()
-	private var insertionSortPhrases = [String]()
-	private var mergeSortPhrases = [String]()
-	private var stupidSortPhrases = [String]()
+	public var introPhrases = [String]()
+	public var bubbleSortPhrases = [String]()
+	public var selectionSortPhrases = [String]()
+	public var insertionSortPhrases = [String]()
+	public var mergeSortPhrases = [String]()
+	public var stupidSortPhrases = [String]()
 	
 	// MARK: Init
 	

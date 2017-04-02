@@ -18,18 +18,12 @@ public final class MainView: UIView {
 	
 	public static let titleFlipFlopInterval:TimeInterval = 3
 	
-	// MARK: Scene progression
-	
-	private var currentSceneChapter:SceneChapter = .welcome
-	
 	// MARK: Properties
 	
 	public var emoji:[Emoji]
 	public let emojiTeacher:EmojiTeacher
 	
 	private var teacherTouched = false
-	
-	public lazy var instructionsTitle:TitleLabel = TitleLabel(position: CGPoint(x: self.center.x, y: self.center.y+self.frame.height/4), initialText: "Uh oh...")
 	
 	private var snoringTimer:Timer?
 	
@@ -83,10 +77,8 @@ public final class MainView: UIView {
 		self.emojiTeacher.center = self.center
 		self.addSubview(emojiTeacher)
 		
-		self.addSubview(instructionsTitle)
 		
 		self.teacherStartSnoring()
-		self.instructionsTitle.startFlipFlop(duration: 2, position: instructionsTitle.center, firstStyle: .sortHelp, firstText: "Uh oh...", secondStyle: .sortHelp, secondText: "Tap to wake up the teacher.")
 		
 		
 		
@@ -154,9 +146,9 @@ public final class MainView: UIView {
 		if emojiTeacher.frame.contains(location) {
 			// stop the teacher from snoring
 			snoringTimer?.invalidate()
-			instructionsTitle.stopFlipFlop()
+			//instructionsTitle.stopFlipFlop()
 			emojiTeacher.currentEmotion = .shocked
-			instructionsTitle.animateTitle(to: .userInteractionPrompt, position: instructionsTitle.center, text: "")
+			//instructionsTitle.animateTitle(to: .userInteractionPrompt, position: instructionsTitle.center, text: "")
 			emojiTeacher.bounce(1, completion: nil)
 			teacherTouched = true
 			
@@ -183,8 +175,6 @@ public final class MainView: UIView {
 				DispatchQueue.main.async {
 					self.emojiTeacher.shake {
 						self.emojiTeacher.currentEmotion = .talking
-						let pos = CGPoint(x: self.emojiTeacher.center.x, y: self.emojiTeacher.center.y+self.frame.height/8)
-						self.instructionsTitle.startFlipFlop(duration: 2, position: pos, firstStyle: .teacherTalk, firstText: "Hello!", secondStyle: .userInteractionPrompt, secondText: "Keep tapping the teacher.")
 					}
 				}
 			}
@@ -202,7 +192,6 @@ public final class MainView: UIView {
 					self.emojiTeacher.shake {
 						self.emojiTeacher.currentEmotion = .talking
 						let pos = CGPoint(x: self.emojiTeacher.center.x, y: self.emojiTeacher.center.y+self.frame.height/8)
-						self.instructionsTitle.startFlipFlop(duration: 2, position: pos, firstStyle: .teacherTalk, firstText: "Hello!", secondStyle: .userInteractionPrompt, secondText: "Keep tapping the teacher.")
 					}
 				}
 			}

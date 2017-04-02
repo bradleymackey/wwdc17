@@ -1,6 +1,12 @@
 import Foundation
 import UIKit
 
+
+public protocol TeacherViewDelegate: class {
+	/// triggered when blurs should be removed from any other views - we are ready to sort!
+	func interactionReady(fadeDuration:TimeInterval)
+}
+
 /// The view module that contains the emoji teacher and their speech.
 public final class TeacherView: UIView, OptionChangeReactable {
 	
@@ -8,6 +14,18 @@ public final class TeacherView: UIView, OptionChangeReactable {
 	
 	public static let labelFlipFlopInterval: TimeInterval = 3
 	
+	// MARK: Enum
+	
+	public enum State {
+		case welcomeSequence(currentPhraseIndex:Int)
+		case infoAboutAlgorithms
+	}
+	
+	// MARK: Delegate
+	
+	/// to notify other views of changes
+	public weak var optionsDelegate:TeacherViewDelegate?
+	public weak var sortViewDelegate:TeacherViewDelegate?
 	
 	// MARK: Properties
 	
@@ -40,8 +58,12 @@ public final class TeacherView: UIView, OptionChangeReactable {
 		}
 	}
 	
-
+	private lazy var teacherLabel:TitleLabel = TitleLabel(position: CGPoint(x:self.center.x,y:2*self.frame.height/3), initialText: "Uh oh...", initialStyle:.narratorTalk, maxSize: CGSize(width: self.frame.width-10, height: self.frame.height/2))
+	private var teacherInitiallyTouched = false
 	
+	private var currentState:State = .welcomeSequence(currentPhraseIndex: 0)
+	
+
 	// MARK: Init
 
 	public init(frame:CGRect, teacher:EmojiTeacher) {
@@ -81,6 +103,9 @@ public final class TeacherView: UIView, OptionChangeReactable {
 		self.addSubview(teacher)
 		
 		self.teacherStartSnoring()
+		
+		self.addSubview(teacherLabel)
+		self.teacherLabel.startFlipFlop(duration: 3, position: teacherLabel.center, firstStyle: .narratorTalk, firstText: "Uh oh...", secondStyle: .userInteractionPrompt, secondText: "Tap the teacher.")
 	}
 	
 	private func teacherStartSnoring() {
@@ -105,7 +130,42 @@ public final class TeacherView: UIView, OptionChangeReactable {
 	
 	public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let touch = touches.first else { return }
-		
+		let location = touch.location(in: self)
+		if teacher.frame.contains(location) {
+			defer { updateLabelForCurrentState() }
+			guard !teacherInitiallyTouched else { return }
+			teacherInitiallyTouched = true
+			// stop the teacher from snoring
+			snoringTimer?.invalidate()
+			teacher.bounce(1, completion: nil)
+			teacher.currentEmotion = .unimpressed
+			Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { (timer) in
+				DispatchQueue.main.async {
+					self.teacher.shake {
+						self.teacher.currentEmotion = .talking
+					}
+				}
+			}
+		}
+	}
+	
+	private func updateLabelForCurrentState() {
+		teacherLabel.stopFlipFlop()
+		switch currentState {
+		case .welcomeSequence(let currentIndex):
+			guard currentIndex < teacher.introPhrases.count else {
+				currentState = .infoAboutAlgorithms
+				teacher.currentEmotion = .love
+				self.optionsDelegate?.interactionReady(fadeDuration: 2)
+				self.sortViewDelegate?.interactionReady(fadeDuration: 2)
+				break
+			}
+			defer { currentState = .welcomeSequence(currentPhraseIndex: currentIndex+1) }
+			self.teacherLabel.animateTitle(to: .teacherTalk, position: self.teacherLabel.center, text: teacher.introPhrases[currentIndex])
+		case .infoAboutAlgorithms:
+			self.teacher.currentEmotion = .shocked
+			self.teacherLabel.animateTitle(to: .teacherTalk, position: self.teacherLabel.center, text: "Ouch!")
+		}
 	}
 	
 	// MARK: Delegate
@@ -115,7 +175,8 @@ public final class TeacherView: UIView, OptionChangeReactable {
 	}
 	
 	public func randomisePositions() {
-		
+		teacher.currentEmotion = .cool
+		teacherLabel.animateTitle(to: .narratorTalk, position: teacherLabel.center, text: "Let's mix things up!")
 	}
 	
 	public func newTraitTapped(trait: Emoji.Trait) {
@@ -124,6 +185,23 @@ public final class TeacherView: UIView, OptionChangeReactable {
 	
 	public func newAlgorithmTapped(algorithm: Sorter.Algorithm) {
 		// emoji teacher should briefly explain algorithm before we use it
+		switch algorithm {
+		case .bubbleSort:
+			teacher.currentEmotion = .unimpressed
+			teacherLabel.animateTitle(to: .teacherTalk, position: teacherLabel.center, text: "Bubble Sort? Seriously? Smh.")
+		case .insertionSort:
+			teacher.currentEmotion = .cool
+			teacherLabel.animateTitle(to: .teacherTalk, position: teacherLabel.center, text: "Good for short lists!")
+		case .mergeSort:
+			teacher.currentEmotion = .love
+			teacherLabel.animateTitle(to: .teacherTalk, position: teacherLabel.center, text: "One of the most efficient sorting algorithms!!!")
+		case .selectionSort:
+			teacher.currentEmotion = .unimpressed
+			teacherLabel.animateTitle(to: .teacherTalk, position: teacherLabel.center, text: "I've seen better sorting algorithms...")
+		case .stupidSort:
+			teacher.currentEmotion = .shocked
+			teacherLabel.animateTitle(to: .teacherTalk, position: teacherLabel.center, text: "Let's just not even go there...")
+		}
 	}
 	
 	
