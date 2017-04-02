@@ -194,9 +194,6 @@ public final class EmojiSortView: UIView, OptionChangeReactable, TeacherViewDele
 			let val = emojis[index]!.traits[attribute]!
 			traitVals.append(CGFloat(val))
 		}
-//		for i in indiciesFree {
-//			traitVals[i] = 0
-//		}
 		return traitVals
 	}
 	

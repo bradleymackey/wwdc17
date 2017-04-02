@@ -70,17 +70,17 @@ public final class TitleLabel: UILabel {
 			}
 		case .userInteractionPrompt:
 			return {
-				self.font = UIFont.boldSystemFont(ofSize: 14)
+				self.font = UIFont.boldSystemFont(ofSize: 15)
 				self.textColor = .white
 			}
 		case .teacherTalk:
 			return {
-				self.font = UIFont.boldSystemFont(ofSize: 12)
+				self.font = UIFont.boldSystemFont(ofSize: 14)
 				self.textColor = .white
 			}
 		case .sortHelp:
 			return {
-				self.font = UIFont.boldSystemFont(ofSize: 12)
+				self.font = UIFont.boldSystemFont(ofSize: 13)
 				self.textColor = .darkGray
 			}
 		}

@@ -134,22 +134,31 @@ public final class TeacherView: UIView, OptionChangeReactable {
 	
 	// MARK: Touches
 	
+	private var readyForExtraTouches = false
+	
 	public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let touch = touches.first else { return }
 		let location = touch.location(in: self)
 		if teacher.frame.contains(location) {
-			algorithmRunningSpeechTimer?.invalidate()
-			defer { updateLabelForCurrentState() }
+			defer {
+				if readyForExtraTouches {
+					updateLabelForCurrentState()
+				}
+			}
 			guard !teacherInitiallyTouched else { return }
 			teacherInitiallyTouched = true
 			// stop the teacher from snoring
 			snoringTimer?.invalidate()
 			teacher.bounce(1, completion: nil)
+			self.teacherLabel.stopFlipFlop()
+			self.teacherLabel.animateTitle(to: .teacherTalk, position: self.teacherLabel.center, text: "")
 			teacher.currentEmotion = .unimpressed
 			Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { (timer) in
 				DispatchQueue.main.async {
 					self.teacher.shake {
 						self.teacher.currentEmotion = .talking
+						self.updateLabelForCurrentState()
+						self.readyForExtraTouches = true
 					}
 				}
 			}
@@ -162,7 +171,8 @@ public final class TeacherView: UIView, OptionChangeReactable {
 		case .welcomeSequence(let currentIndex):
 			guard currentIndex < teacher.introPhrases.count else {
 				currentState = .infoAboutAlgorithms
-				teacher.currentEmotion = .love
+				teacher.currentEmotion = .happy
+				self.teacherLabel.animateTitle(to: .teacherTalk, position: self.teacherLabel.center, text: "")
 				self.optionsDelegate?.interactionReady(fadeDuration: 2)
 				self.sortViewDelegate?.interactionReady(fadeDuration: 2)
 				break
@@ -192,7 +202,7 @@ public final class TeacherView: UIView, OptionChangeReactable {
 	
 	// MARK: Delegate
 	
-	var currentIndex = 0
+	private var currentIndex = 0
 	
 	public func sort(withAlgorithm algorithm: Sorter.Algorithm, trait: Emoji.Trait, speed: AlgorithmSpeed) {
 		algorithmRunningSpeechTimer?.invalidate()
@@ -228,8 +238,8 @@ public final class TeacherView: UIView, OptionChangeReactable {
 			teacher.currentEmotion = .unimpressed
 			teacherLabel.animateTitle(to: .teacherTalk, position: teacherLabel.center, text: "Bubble Sort? Seriously? Smh.")
 		case .insertionSort:
-			teacher.currentEmotion = .cool
-			teacherLabel.animateTitle(to: .teacherTalk, position: teacherLabel.center, text: "Good for short lists!")
+			teacher.currentEmotion = .confused
+			teacherLabel.animateTitle(to: .teacherTalk, position: teacherLabel.center, text: "Alright for short lists...")
 		case .mergeSort:
 			teacher.currentEmotion = .love
 			teacherLabel.animateTitle(to: .teacherTalk, position: teacherLabel.center, text: "One of the most efficient sorting algorithms!!!")

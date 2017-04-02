@@ -23,27 +23,42 @@
 		<string>It scans through the list again and again...</string>
 		<string>...each time pushing the biggest element to the top.</string>
 		<string>It has to do lots of comparisons in order to figure this out though.</string>
-		<string>It&apos;s only practical for long lists if the list is very nearly sorted already.</string>
+		<string>It&apos;s only practical for long lists if the list is nearly sorted already.</string>
 	</array>
 	<key>selection_sort</key>
 	<array>
-		<string>test</string>
-		<string>test</string>
+		<string>This is a slow but simple algorithm...</string>
+		<string>...especially slow on long lists.</string>
+		<string>It scans through the list again and again...</string>
+		<string>...and figures out which 2 elements have to be swapped...</string>
+		<string>...so that it can sort from the bottom up.</string>
 	</array>
 	<key>insertion_sort</key>
 	<array>
-		<string>test</string>
+		<string>Insertion Sort is not very efficient on large lists.</string>
 		<string>test</string>
 	</array>
 	<key>merge_sort</key>
 	<array>
-		<string>test</string>
-		<string>test</string>
+		<string>Merge Sort is a recursive algorithm.</string>
+		<string>This means it a &apos;divide and conquer&apos; algorithm.</string>
+		<string>It splits the list up into little groups...</string>
+		<string>...then merges the groups together, forming bigger, sorted groups.</string>
+		<string>These groups are then sorted, to eventually give a sorted list.</string>
+		<string>This requires much less comparisons than the other algorithms.</string>
+		<string>It is much faster on bigger lists than the other algorithms.</string>
+		<string>It is one of the most efficient sorting algorithms discovered!</string>
 	</array>
 	<key>stupid_sort</key>
 	<array>
-		<string>test</string>
-		<string>test</string>
+		<string>This is a really, really bad algorithm.</string>
+		<string>It isn&apos;t used in the real world.</string>
+		<string>It&apos;s just used to demonstate how bad an algorithm can be.</string>
+		<string>The list is randomly arranged...</string>
+		<string>...until all the elements just happen to be sorted.</string>
+		<string>This is such an unlikely combination of elements...</string>
+		<string>...it would take WEEKS just for our little list!</string>
+		<string>Never use it!</string>
 	</array>
 </dict>
 </plist>
