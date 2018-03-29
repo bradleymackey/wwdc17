@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>introduction</key>
+	<array>
+		<string>Hello!</string>
+		<string>I wasn&apos;t sleeping I promise...</string>
+		<string>Today we are going to look at some sorting algorithms.</string>
+		<string>You may not know it, but sorting algorithms are used all the time in computers and are really important.</string>
+		<string>Imagine you want to list all your songs by song name.</string>
+		<string>The songs need to be sorted!</string>
+		<string>There are many ways we can go about sorting such a list.</string>
+		<string>The set of rules we follow to complete a task like sorting is called an ALGORITHM.</string>
+		<string>Some really smart people have already done the hard work and figured out some sorting algorithms for us.</string>
+		<string>Some sorting algorithms are much better than others though...</string>
+		<string>The quality of a sorting algorithm is usually measured by the NUMBER OF COMPARISONS the algorithm does.</string>
+		<string>Let&apos;s check some of them out by sorting some of my emoji friends!</string>
+	</array>
+	<key>bubble_sort</key>
+	<array>
+		<string>This is a slow but simple sorting algorithm.</string>
+		<string>It scans through the list again and again...</string>
+		<string>...each time pushing the biggest element to the top.</string>
+		<string>It has to do lots of comparisons in order to figure this out though.</string>
+		<string>It&apos;s only practical for long lists if the list is nearly sorted already.</string>
+	</array>
+	<key>selection_sort</key>
+	<array>
+		<string>This is a slow but simple algorithm...</string>
+		<string>...especially slow on long lists.</string>
+		<string>It scans through the list again and again...</string>
+		<string>...and figures out which 2 elements have to be swapped...</string>
+		<string>...so that it can sort from the bottom up.</string>
+	</array>
+	<key>insertion_sort</key>
+	<array>
+		<string>Insertion Sort is not very efficient on large lists.</string>
+		<string>It&apos;s useful because of how simple it is to code.</string>
+		<string>It can also start sorting a list before we even know what the whole list is.</string>
+		<string>Although, this is not RECURSIVE...</string>
+		<string>...so it requires a lot of comparisons...</string>
+		<string>...making it slow if the list is big.</string>
+	</array>
+	<key>merge_sort</key>
+	<array>
+		<string>Merge Sort is a recursive algorithm.</string>
+		<string>This means it a &apos;divide and conquer&apos; algorithm.</string>
+		<string>It splits the list up into little groups...</string>
+		<string>...then merges the groups together, forming bigger, sorted groups.</string>
+		<string>These groups are then sorted, to eventually give a sorted list.</string>
+		<string>This requires much less comparisons than the other algorithms.</string>
+		<string>It is much faster on bigger lists than the other algorithms.</string>
+		<string>It is one of the most efficient sorting algorithms discovered!</string>
+	</array>
+	<key>stupid_sort</key>
+	<array>
+		<string>This is a really, really bad algorithm.</string>
+		<string>It isn&apos;t used in the real world.</string>
+		<string>It&apos;s just used to demonstate how bad an algorithm can be.</string>
+		<string>The list is randomly arranged...</string>
+		<string>...until all the elements just happen to be sorted.</string>
+		<string>This is such an unlikely combination of elements...</string>
+		<string>...it would take WEEKS just for our little list!</string>
+		<string>Never use it!</string>
+	</array>
+</dict>
+</plist>
